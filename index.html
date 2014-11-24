@@ -44,8 +44,8 @@
 				try {
 					localStorage.setItem('settings', JSON.stringify(settings)); 
 				}
-				catch {
-					console.log("It seems like you're surfing in Private Mode, we're sorry but we can't store your settings this way.");
+				catch(err) {
+					console.log("It seems like you're surfing in Private Mode, we're sorry but we can't store your settings this way.<br>Error: " + err);
 				}
 			};
 			if (system.untouched) { system.untouched = false; };
