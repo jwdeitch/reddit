@@ -40,7 +40,14 @@
 		var recommendationsNsfw = ["NSFW", "BustyPetite", "NSFW_Gif", "Oilporn", "cfnm", "Xsome", "PrettyGirls", "Titties", "SexyGirls", "bonermaterial", "gentlemanboners", "Boobies", "Ass", "Anal", "Cumsluts", "NSFWHardcore", "MILF", "Blowjobs", "GirlsinYogapants", "holdthemoan", "burstingout", "Perky", "60fpsporn", "O_Faces", "LegalTeens", "celebnsfw", "datgap", "SexyButNotPorn"];
 
 		function fetchJson(subredditOverwrite) {
-			if (system.usedSettings) { localStorage.setItem('settings', JSON.stringify(settings)); };
+			if (system.usedSettings) { 
+				try {
+					localStorage.setItem('settings', JSON.stringify(settings)); 
+				}
+				catch {
+					console.log("It seems like you're surfing in Private Mode, we're sorry but we can't store your settings this way.");
+				}
+			};
 			if (system.untouched) { system.untouched = false; };
 			system.firstPress = true;
 
