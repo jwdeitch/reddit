@@ -48,6 +48,7 @@
 					console.log("It seems like you're surfing in Private Mode, we're sorry but we can't store your settings permanently this way.");
 				}
 			};
+
 			if (system.untouched) { system.untouched = false; };
 			system.firstPress = true;
 
@@ -75,7 +76,7 @@
 
 			//Check if "Help" is used, if so, cancel everything and display the Help module
 			if (target.subreddit == "help") {
-				$('#results').html(' ').append('<div class="panel"><h1>Help</h1><br><br><h2>General</h2>Use <pre>options</pre> to change your settings.<br><br>Click on a post to remove it from your view.<br><br>Append a number to the subreddit to filter:<br><br><pre>0</pre> - Hot (default)<br><pre>1</pre> - Top of all Time<br><pre>2</pre> - New<br><pre>3</pre> - Top of the Year<br><pre>4</pre> - Top of the Month<br><br><pre>cats 3</pre> for the best cats of the year<br><pre>gif 1</pre> for the best GIFs of all time.<br><br></div>');
+				$('#results').html(' ').append('<div class="panel"><h1>Help</h1><br><br><h2>General</h2>Use <pre>options</pre> to change your settings.<br><br>Click on a post to remove it from your view.<br><br>You can also enter a Multireddit.<br><br>Append a number to the subreddit to filter:<br><br><pre>0</pre> - Hot (default)<br><pre>1</pre> - Top of all Time<br><pre>2</pre> - New<br><pre>3</pre> - Top of the Year<br><pre>4</pre> - Top of the Month<br><br><pre>cats 3</pre> for the best cats of the year<br><pre>gif 1</pre> for the best GIFs of all time.<br><br></div>');
 				//<br><br><h2>Additional Info</h2><pre>Allow all Sources</pre> scans for all image links instead of just imgur and gfycat.<br><br><pre>Lazy Loading</pre> can improve performance on slow computers because it only starts to load images once they scroll into view.<br><br><br><br>
 
 				return;
@@ -116,6 +117,13 @@
 			else { target.sort = "/hot.json"; target.mode = "hot" };
 
 			target.url = "http://www.reddit.com/r/" + target.subreddit + target.sort;
+
+			// Check if it's a multireddit
+			if (~target.subreddit.indexOf("/m/")) {
+				target.subreddit = target.subreddit.replace("/user/", "").replace("/u/", "");
+				target.url = "http://www.reddit.com/user/" + target.subreddit + target.sort;
+			};
+
 			target.xpostMentions.length = 0;
 			target.isNSFW = false;
 
