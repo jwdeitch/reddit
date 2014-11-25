@@ -116,6 +116,8 @@
 			else if (sortFilter == 4) { target.sort = "/top.json?sort=top&t=month"; target.mode = "top - month" } // top of the month
 			else { target.sort = "/hot.json"; target.mode = "hot" };
 
+			target.subreddit = target.subreddit.replace("/r/", "");
+
 			target.url = "http://www.reddit.com/r/" + target.subreddit + target.sort;
 
 			// Check if it's a multireddit
