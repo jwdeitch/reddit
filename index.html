@@ -293,8 +293,8 @@
 					};
 				},
 
-				error : function () {
-					$('#results').html(' ').append('<div id="loader">There was an error.</div>');
+				error : function (x, status, error) {
+					$('#results').html(' ').append('<div id="loader">There was an error.<br><br><pre>' + error + '</pre></div>');
 					$('#subreddit-input').val('').focus();
 				}
 
