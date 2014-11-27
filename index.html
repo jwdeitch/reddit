@@ -37,7 +37,7 @@
 			cantSaveOptions : false
 		};
 
-		var recommendationsSfw = ["aww", "Pics", "Cats", "awwducational", "EarthPorn", "funny", "AdviceAnimals", "gifs", "DataIsBeautiful", "Art", "OldSchoolCool", "Wallpapers", "WoahDude", "reactiongifs", "AbandonedPorn", "gaming", "food", "perfecttiming", "minimalism", "Offensive_Wallpapers", "blue", "BirdsWithArms", "FoodPorn", "undexpected"];
+		var recommendationsSfw = ["aww", "Pics", "Cats", "awwducational", "EarthPorn", "funny", "AdviceAnimals", "gifs", "DataIsBeautiful", "Art", "OldSchoolCool", "Wallpapers", "WoahDude", "reactiongifs", "AbandonedPorn", "gaming", "food", "perfecttiming", "minimalism", "Offensive_Wallpapers", "blue", "BirdsWithArms", "FoodPorn", "unexpected"];
 		var recommendationsNsfw = ["NSFW", "BustyPetite", "NSFW_Gif", "Oilporn", "cfnm", "Xsome", "PrettyGirls", "Titties", "SexyGirls", "bonermaterial", "gentlemanboners", "Boobies", "Ass", "Anal", "Cumsluts", "NSFWHardcore", "MILF", "Blowjobs", "GirlsinYogapants", "holdthemoan", "burstingout", "Perky", "60fpsporn", "O_Faces", "LegalTeens", "celebnsfw", "datgap", "SexyButNotPorn"];
 
 		function fetchJson(subredditOverwrite) {
@@ -79,6 +79,7 @@
 			//Check if "Help" is used, if so, cancel everything and display the Help module
 			if (target.subreddit == "help") {
 				$('#results').html(' ').append('<div class="panel"><h1>Help</h1><br><br><h2>General</h2>Use <pre>options</pre> to change your settings.<br><br>Click on a post to remove it from your view.<br><br>You can also enter a Multireddit.<br><br>Append a number to the subreddit to filter:<br><br><pre>0</pre> - Hot (default)<br><pre>1</pre> - Top of all Time<br><pre>2</pre> - New<br><pre>3</pre> - Top of the Year<br><pre>4</pre> - Top of the Month<br><br><pre>cats 3</pre> for the best cats of the year<br><pre>gif 1</pre> for the best GIFs of all time.<br><br></div>');
+				document.title = "Help - Reddit Crawler";
 				return;
 			};
 
@@ -89,6 +90,8 @@
 				if (system.cantSaveOptions) {
 					$('.panel-options').append("<br><br>We're sorry, but we can't permanently save your settings. Usually this is caused by surfing in Private Mode.<br><br>");
 				};
+
+				document.title = "Options - Reddit Crawler";
 
 				if (settings.removeOnclick) { $('#optionbox-1').prop('checked', true); };
 				if (settings.renderHtml5) { $('#optionbox-2').prop('checked', true); };
@@ -121,6 +124,7 @@
 			else { target.sort = "/hot.json"; target.mode = "hot" };
 
 			target.subreddit = target.subreddit.replace("/r/", "");
+			document.title = "/r/" + target.subreddit + " - Reddit Crawler";
 
 			target.url = "http://www.reddit.com/r/" + target.subreddit + target.sort;
 

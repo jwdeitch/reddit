@@ -114,6 +114,7 @@ h6 {
 #results .panel-suggestion {
 	display: inline-block;
 	position: relative;
+  vertical-align: bottom;
 	white-space: nowrap;
 	margin: 5px;
 	width: 400px;
