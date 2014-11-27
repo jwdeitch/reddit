@@ -14,7 +14,14 @@
 body {
   font-family: "Helvetica Neue", "Source Sans Pro", Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
+  color: #555;
   background-color: #ffffff;
+}
+
+body.nightmode {
+  color: #fff;
+  background-color: #211130;
+  background-color: #130a1b;
 }
 
 p, .panel {
@@ -36,6 +43,10 @@ pre {
   cursor: default;
 }
 
+body.nightmode pre {
+  background-color: rgba(251, 251, 251, 0.15);
+}
+
 h1 {
   font-weight: 200;
   text-align: center;
@@ -52,7 +63,6 @@ h6 {
 	font-size: 13px;
 	font-weight: 300;
 	letter-spacing: .5px;
-	color: #666;
 	margin: 0.8em;
 }
 
@@ -69,16 +79,24 @@ h6 {
 	background-color: rgba(255,255,255,0.5);
 }
 
+body.nightmode #wrapper {
+  background-color: rgba(19, 10, 27, 0.5);
+}
+
 #wrapper input#subreddit-input {
 	border: 0 !important;
 	outline: none !important;
 	background-color: transparent;
 	font-size: 50px !important;
-	color: #444;
+	color: inherit;
 	height: 100px;
 	width: 100%;
 	text-indent: 50px;
 	margin: 0;
+}
+
+body.nightmode #wrapper input#subreddit-input {
+  color: #d2d2d2
 }
 
 #wrapper button {
@@ -132,7 +150,7 @@ body.hugeimages #results .image {
 	text-align: left;
 	height: auto;
 	font-size: 20px;
-	color: #555;
+	color: inherit;
 	white-space: normal;
   width: 90%;
   max-width: 550px;
@@ -197,6 +215,10 @@ body.smoothtransition #results .image:after {
 	background-color: rgba(255, 255, 255, 0.55);
 }
 
+body.nightmode #results .image:hover:after {
+  background-color: rgba(19, 10, 27, 0.5);
+}
+
 #results .image span.title {
 	font-weight: 200;
 	font-size: 30px;
@@ -229,7 +251,7 @@ body.smoothtransition #results .image span.title {
 }
 
 #results .image:hover span.title {
-	color: #343434;
+	color: inherit;
 }
 
 #results .image img,
@@ -241,7 +263,7 @@ body.smoothtransition #results .image span.title {
 #results #loader {
 	display: inline-block;
 	margin-top: 80px;
-	color: #666;
+	color: inherit;
 	font-size: 40px;
 	font-weight: 100;
 	letter-spacing: 4px;

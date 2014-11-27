@@ -26,7 +26,8 @@
 			hugeImages : false,
 			allowOtherSources : true,
 			lazyLoading : false,
-			lazyLoadingString : ''
+			lazyLoadingString : '',
+			nightMode : false
 		};
 
 		var system = {
@@ -85,7 +86,7 @@
 
 			//Check if "Options" is used, if so, cancel everything, display the Options module and set up the listeners
 			if (target.subreddit == "options") {
-				$('#results').html(' ').append('<div class="panel panel-options"><h1>Options</h1><br><br><h2>General</h2><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-1"><h6>Remove Entries on Click</h6></div><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-3"><h6>Show NSFW Content</h6></div><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-4"><h6>Huge Images</h6></div><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-6"><h6>Suggest Subreddits</h6></div><h2>Performance</h2><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-2"><h6>Render HTML5 Video</h6></div><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-5"><h6>Smooth Labels</h6></div><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-7"><h6>Allow all Sources</h6></div><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-8"><h6>Use Lazy Loading</h6></div></div>');
+				$('#results').html(' ').append('<div class="panel panel-options"><h1>Options</h1><br><br><h2>General</h2><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-1"><h6>Remove Entries on Click</h6></div><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-3"><h6>Show NSFW Content</h6></div><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-4"><h6>Huge Images</h6></div><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-6"><h6>Suggest Subreddits</h6></div><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-9"><h6>Night Mode</h6></div><h2>Performance</h2><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-2"><h6>Render HTML5 Video</h6></div><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-5"><h6>Smooth Labels</h6></div><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-7"><h6>Allow all Sources</h6></div><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-8"><h6>Use Lazy Loading</h6></div></div>');
 
 				if (system.cantSaveOptions) {
 					$('.panel-options').append("<br><br>We're sorry, but we can't permanently save your settings. Usually this is caused by surfing in Private Mode.<br><br>");
@@ -101,6 +102,7 @@
 				if (settings.suggestReddits) { $('#optionbox-6').prop('checked', true); };
 				if (settings.allowOtherSources) { $('#optionbox-7').prop('checked', true); };
 				if (settings.lazyLoading) { $('#optionbox-8').prop('checked', true); };
+				if (settings.nightMode) { $('#optionbox-9').prop('checked', true); };
 
 				$('#optionbox-1').change(function() { settings.removeOnclick = $(this).prop('checked'); });
 				$('#optionbox-2').change(function() { settings.renderHtml5 = $(this).prop('checked'); });
@@ -110,6 +112,7 @@
 				$('#optionbox-6').change(function() { settings.suggestReddits = $(this).prop('checked'); });
 				$('#optionbox-7').change(function() { settings.allowOtherSources = $(this).prop('checked'); });
 				$('#optionbox-8').change(function() { settings.lazyLoading = $(this).prop('checked'); evaluateSettings(); });
+				$('#optionbox-9').change(function() { settings.nightMode = $(this).prop('checked'); evaluateSettings(); });
 
 				system.usedSettings = true;
 				return;
@@ -326,6 +329,9 @@
 
 			if (settings.fadeLabels) { $('body').addClass('smoothtransition');} 
 			else { $('body').removeClass('smoothtransition'); };
+
+			if (settings.nightMode) { $('body').addClass('nightmode');} 
+			else { $('body').removeClass('nightmode'); };
 
 			if (settings.lazyLoading) { settings.lazyLoadingString = "src='null.gif' data-";} 
 			else { settings.lazyLoadingString = ""; };
