@@ -54,7 +54,6 @@
 					localStorage.setItem('settings', JSON.stringify(settings)); 
 				}
 				catch(err) {
-					console.log("It seems like you're surfing in Private Mode, we're sorry but we can't store your settings permanently this way.");
 					system.cantSaveOptions = true;
 				}
 			};
@@ -166,7 +165,6 @@
 						target.counter++;
 
 						var postTitle = target.JSON.responseJSON.data.children[i].data.title;
-						//console.log(postTitle + ' - Number ' + i);
 
 						// NSFW Check
 						if (!settings.showNSFW && target.JSON.responseJSON.data.children[i].data.over_18) {
@@ -252,7 +250,7 @@
 								class : 'image',
 								style : "background-image: url(" + target.JSON.responseJSON.data.children[i].data.url + ")"
 								}).html('<span class="title">' + postTitle + '</span>').appendTo('#results');
-							} else { target.counter--; console.log('THIS IS NOT ACCEPTABLE! i: ' + i + ' - counter: ' + target.counter); };
+							} else { target.counter--; };
 						};
 
 						//if (settings.removeOnclick) { $(target.newElement).bind('click', function(){ $(this).remove(); return false; }); };
