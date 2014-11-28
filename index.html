@@ -14,11 +14,15 @@
 			JSON : '',
 			newElement : '',
 			xpostMentions : [],
-			isNSFW : false
+			isNSFW : false,
+			slideshowLength : 0,
+			slideshowPosition : 0,
+			slideshowActive : false,
+			counter : 0
 		};
 
 		var settings = {
-			removeOnclick : true,
+			enableSlideshow : true,
 			renderHtml5 : true,
 			showNSFW : true,
 			fadeLabels : false,
@@ -37,6 +41,9 @@
 			usedFilter : false,
 			cantSaveOptions : false
 		};
+
+		var keylisten1;
+		var keylisten2;
 
 		var recommendationsSfw = ["aww", "Pics", "Cats", "awwducational", "EarthPorn", "funny", "AdviceAnimals", "gifs", "DataIsBeautiful", "Art", "OldSchoolCool", "Wallpapers", "WoahDude", "reactiongifs", "AbandonedPorn", "gaming", "food", "perfecttiming", "minimalism", "Offensive_Wallpapers", "blue", "BirdsWithArms", "FoodPorn", "unexpected"];
 		var recommendationsNsfw = ["NSFW", "BustyPetite", "NSFW_Gif", "Oilporn", "cfnm", "Xsome", "PrettyGirls", "Titties", "SexyGirls", "bonermaterial", "gentlemanboners", "Boobies", "Ass", "Anal", "Cumsluts", "NSFWHardcore", "MILF", "Blowjobs", "GirlsinYogapants", "holdthemoan", "burstingout", "Perky", "60fpsporn", "O_Faces", "LegalTeens", "celebnsfw", "datgap", "SexyButNotPorn"];
@@ -86,7 +93,7 @@
 
 			//Check if "Options" is used, if so, cancel everything, display the Options module and set up the listeners
 			if (target.subreddit == "options") {
-				$('#results').html(' ').append('<div class="panel panel-options"><h1>Options</h1><br><br><h2>General</h2><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-1"><h6>Remove Entries on Click</h6></div><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-3"><h6>Show NSFW Content</h6></div><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-4"><h6>Huge Images</h6></div><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-6"><h6>Suggest Subreddits</h6></div><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-9"><h6>Night Mode</h6></div><h2>Performance</h2><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-2"><h6>Render HTML5 Video</h6></div><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-5"><h6>Smooth Labels</h6></div><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-7"><h6>Allow all Sources</h6></div><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-8"><h6>Use Lazy Loading</h6></div></div>');
+				$('#results').html(' ').append('<div class="panel panel-options"><h1>Options</h1><br><br><h2>General</h2><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-1"><h6>Enable Slideshow</h6></div><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-3"><h6>Show NSFW Content</h6></div><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-4"><h6>Huge Images</h6></div><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-6"><h6>Suggest Subreddits</h6></div><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-9"><h6>Night Mode</h6></div><h2>Performance</h2><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-2"><h6>Render HTML5 Video</h6></div><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-5"><h6>Smooth Labels</h6></div><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-7"><h6>Allow all Sources</h6></div><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-8"><h6>Use Lazy Loading</h6></div></div>');
 
 				if (system.cantSaveOptions) {
 					$('.panel-options').append("<br><br>We're sorry, but we can't permanently save your settings. Usually this is caused by surfing in Private Mode.<br><br>");
@@ -94,7 +101,7 @@
 
 				document.title = "Options - Reddit Crawler";
 
-				if (settings.removeOnclick) { $('#optionbox-1').prop('checked', true); };
+				if (settings.enableSlideshow) { $('#optionbox-1').prop('checked', true); };
 				if (settings.renderHtml5) { $('#optionbox-2').prop('checked', true); };
 				if (settings.showNSFW) { $('#optionbox-3').prop('checked', true); };
 				if (settings.hugeImages) { $('#optionbox-4').prop('checked', true); };
@@ -104,7 +111,7 @@
 				if (settings.lazyLoading) { $('#optionbox-8').prop('checked', true); };
 				if (settings.nightMode) { $('#optionbox-9').prop('checked', true); };
 
-				$('#optionbox-1').change(function() { settings.removeOnclick = $(this).prop('checked'); });
+				$('#optionbox-1').change(function() { settings.enableSlideshow = $(this).prop('checked'); });
 				$('#optionbox-2').change(function() { settings.renderHtml5 = $(this).prop('checked'); });
 				$('#optionbox-3').change(function() { settings.showNSFW = $(this).prop('checked'); });
 				$('#optionbox-4').change(function() { settings.hugeImages = $(this).prop('checked'); evaluateSettings(); });
@@ -139,6 +146,9 @@
 
 			target.xpostMentions.length = 0;
 			target.isNSFW = false;
+			target.slideshowLength = 0;
+			target.slideshowPosition = 0;
+			target.counter = -1;
 
 			// Display "Loading" Dialogue
 			$('#results').html(' ').append('<div id="loader">Loading <span style="color: ' + getRandomColor() + '; opacity: 0.5;">/r/</span>' + target.subreddit + '<br><br>' + target.mode + '</div>');
@@ -153,8 +163,10 @@
 					$('#loader').remove();
 
 					for (var i = 0; i <= (target.JSON.responseJSON.data.children.length - 1); i++) {
+						target.counter++;
 
 						var postTitle = target.JSON.responseJSON.data.children[i].data.title;
+						//console.log(postTitle + ' - Number ' + i);
 
 						// NSFW Check
 						if (!settings.showNSFW && target.JSON.responseJSON.data.children[i].data.over_18) {
@@ -185,7 +197,7 @@
 								target.newElement = $('<div/>', {
 									class : 'image'
 						    		//title: postTitle
-								}).html("<a href='" + target.JSON.responseJSON.data.children[i].data.url + "' target='_blank'><span class='helper'></span><video autoplay='' loop='' muted='' preload='' poster='http://i.imgur.com/" + imgurEnding[imgurEndingLength - 1].substr(4) + ".jpg'><source src='http://i.imgur.com/" + imgurEnding[imgurEndingLength - 1].substr(4) + ".webm' type='video/webm'><source src='http://i.imgur.com/" + imgurEnding[imgurEndingLength - 1].substr(4) + ".mp4' type='video/mp4'></video></a>").appendTo('#results');
+								}).html("<span class='helper'></span><video autoplay='' loop='' muted='' preload='' poster='http://i.imgur.com/" + imgurEnding[imgurEndingLength - 1].substr(4) + ".jpg'><source src='http://i.imgur.com/" + imgurEnding[imgurEndingLength - 1].substr(4) + ".webm' type='video/webm'><source src='http://i.imgur.com/" + imgurEnding[imgurEndingLength - 1].substr(4) + ".mp4' type='video/mp4'></video>").appendTo('#results');
 								target.newElement.append('<span class="title">' + postTitle + '</span>');
 							} else {
 								// Classic Image File
@@ -199,8 +211,10 @@
 
 									var albumJSON = $.getJSON(target.url, function(){
 										var albumTargetUrl = albumJSON.responseJSON.data[0].link;
-										target.newElement = $('<div/>', { class : 'image' }).html("<span class='helper'></span><img " + settings.lazyLoadingString + "src='" + albumTargetUrl + "'>").appendTo('#results');
-										target.newElement.append('<span class="title">' + postTitle + '</span>');
+										target.newElement = $('<div/>', {
+											class : 'image',
+											style : "background-image: url(" + albumTargetUrl + ")"
+										}).html('<span class="title">' + postTitle + '</span>').appendTo('#results');
 									});
 								} else if (imgurCode.substr(0,8) == "gallery/") {
 									// Is Gallery.
@@ -212,10 +226,9 @@
 									};
 
 									target.newElement = $('<div/>', {
-										class : 'image'
-						    			//title: postTitle
-									}).html("<a href='" + target.JSON.responseJSON.data.children[i].data.url + "' target='_blank'><span class='helper'></span><img " + settings.lazyLoadingString + "src='http://i.imgur.com/" + imgurCode + "'></a>").appendTo('#results');
-									target.newElement.append('<span class="title">' + postTitle + '</span>');
+										class : 'image',
+										style : "background-image: url(http://i.imgur.com/" + imgurCode + ")"
+									}).html('<span class="title">' + postTitle + '</span>').appendTo('#results');
 								}
 							}
 						}
@@ -226,9 +239,7 @@
 							gfycatUrl = gfycatUrl.replace("http://gfycat.com/", "").replace("https://gfycat.com/", "").replace("http://www.gfycat.com/", "").replace("https://www.gfycat.com/", "");
 							target.newElement = $('<div/>', {
 								class : 'image'
-						    	//title: postTitle
-							}).html("<a href='" + target.JSON.responseJSON.data.children[i].data.url + "' target='_blank'><span class='helper'></span><video autoplay='' loop='' muted='' preload='' poster='http://thumbs.gfycat.com/" + gfycatUrl + "-poster.jpg'><source src='http://giant.gfycat.com/" + gfycatUrl + ".webm' type='video/webm'><source src='http://giant.gfycat.com/" + gfycatUrl + ".mp4' type='video/mp4'></video></a>").appendTo('#results');
-							target.newElement.append('<span class="title">' + postTitle + '</span>');
+							}).html("<span class='helper'></span><video autoplay='' loop='' muted='' preload='' poster='http://thumbs.gfycat.com/" + gfycatUrl + "-poster.jpg'><source src='http://giant.gfycat.com/" + gfycatUrl + ".webm' type='video/webm'><source src='http://giant.gfycat.com/" + gfycatUrl + ".mp4' type='video/mp4'></video><span class='title'>" + postTitle + "</span>").appendTo('#results');
 						}
 
 						//Other JPG / PNG / GIF
@@ -237,19 +248,20 @@
 							var otherUrlEnding = otherUrlBase.substr(otherUrlBase.length - 3).toLowerCase();
 
 							if (otherUrlEnding == "jpg" || otherUrlEnding == "png" || otherUrlEnding == "gif") {
-								newElement = $('<div/>', {
-								class : 'image'
-								}).html("<a href='" + target.JSON.responseJSON.data.children[i].data.url + "' target='_blank'><span class='helper'></span><img " + settings.lazyLoadingString + "src='" + target.JSON.responseJSON.data.children[i].data.url + "'></a>").appendTo('#results');
-								newElement.append('<span class="title">' + postTitle + '</span>');
-							};
+								target.newElement = $('<div/>', {
+								class : 'image',
+								style : "background-image: url(" + target.JSON.responseJSON.data.children[i].data.url + ")"
+								}).html('<span class="title">' + postTitle + '</span>').appendTo('#results');
+							} else { target.counter--; console.log('THIS IS NOT ACCEPTABLE! i: ' + i + ' - counter: ' + target.counter); };
 						};
 
-						if (settings.removeOnclick) { $(target.newElement).bind('click', function(){ $(this).remove(); return false; }); };
+						//if (settings.removeOnclick) { $(target.newElement).bind('click', function(){ $(this).remove(); return false; }); };
+						$(target.newElement).attr('data-id', target.counter);
 					};
 
 					// Lazy Load Initiation
 					if (settings.lazyLoading) {
-						$('img').unveil(200);
+						//$('img').unveil(200);
 					};
 
 					// Current Subreddit Info Card
@@ -302,6 +314,10 @@
 							}
 						);
 					};
+
+					if (settings.enableSlideshow) {
+						$('.image').bind('click', function(){ setupSlideShow(this); });
+					};
 				},
 
 				error : function (x, status, error) {
@@ -337,6 +353,42 @@
 			else { settings.lazyLoadingString = ""; };
 		}
 
+		function setupSlideShow(position) {
+			if (target.slideshowActive) { return; };
+
+			target.slideshowActive = true;
+			target.slideshowPosition = $(position).attr('data-id');
+			target.slideshowLength = $('.image').length;
+
+			$('body').append('<div id="exit"></div><div id="slideshowoverlay"></div>');
+			$('#exit').bind('click', function(){ quitSlideShow(); });
+			$('#slideshowoverlay').bind('click', function(){ switchSlideShow(); });
+
+			$('.image').eq(target.slideshowPosition).addClass('image-focus');
+		}
+
+		function switchSlideShow(backwards) {
+			if (!target.slideshowActive) { return; };
+			if (backwards) {
+				$('.image').eq(target.slideshowPosition).removeClass('image-focus');
+				target.slideshowPosition--;
+				if (target.slideshowPosition == -1) { target.slideshowPosition = (target.slideshowLength - 1); };
+				$('.image').eq(target.slideshowPosition).addClass('image-focus');
+			} else {
+				$('.image').eq(target.slideshowPosition).removeClass('image-focus');
+				target.slideshowPosition++;
+				if (target.slideshowPosition >= target.slideshowLength) { target.slideshowPosition = 0; };
+				$('.image').eq(target.slideshowPosition).addClass('image-focus');
+			}
+		}
+
+		function quitSlideShow() {
+			target.slideshowActive = false;
+			$('.image-focus').removeClass('image-focus');
+			$('#exit, #slideshowoverlay').remove();
+			$('#subreddit-input').focus().select();
+		}
+
 		
 
 		$(function(){
@@ -363,12 +415,18 @@
 				};
 			}, 15000);
 
-			// Instantly Clear Input on first backspace
+			/* Instantly Clear Input on first backspace
 			$('input').keydown(function(e) {
 			    if ((e.which == 8 || e.which == 46) && system.firstPress == true && system.usedFilter == false) {
 			        $(this).val('');
-			        system.firstPress = false;
-			    }
+			    };
+			    system.firstPress = false;
+			});*/
+
+			$(document).keydown(function(e) { 
+				if (e.which == 37) { switchSlideShow(true); };
+				if (e.which == 39) { switchSlideShow(); };
+				if (e.which == 27) { quitSlideShow(); };
 			});
 
 			// Check Localstorage Settings

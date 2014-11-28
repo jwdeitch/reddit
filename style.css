@@ -141,6 +141,28 @@ body.nightmode #wrapper input#subreddit-input {
 	overflow: hidden;
 }
 
+#results .image {
+  cursor: pointer;
+  color: inherit;
+  background: #fff center center no-repeat;
+  background-size: contain;
+}
+
+body.nightmode #results .image {
+  background-color: #130a1b;
+}
+
+#results .image.image-focus {
+  position: fixed;
+  z-index: 10;
+  width: 100vw;
+  height: 100vh;
+  top: 0;
+  left: 0;
+  margin: 0;
+  pointer-events: auto;
+}
+
 body.hugeimages #results .image {
   width: 800px;
   height: 700px;
@@ -219,11 +241,18 @@ body.nightmode #results .image:hover:after {
   background-color: rgba(19, 10, 27, 0.5);
 }
 
-#results .image span.title {
+#results .image-focus:hover:after {
+  background-color: rgba(0,0,0,0) !important;
+  pointer-events: none;
+  cursor: default;
+}
+
+#results .image .title {
 	font-weight: 200;
 	font-size: 30px;
 	letter-spacing: 3px;
 	color: transparent;
+  text-decoration: none;
 	width: 100%;
 	z-index: 5;
 	top: 40%;
@@ -232,11 +261,10 @@ body.nightmode #results .image:hover:after {
 	position: absolute;
 	text-align: center;
 	right: 0;
-	cursor: default;
-	pointer-events: none;
+	cursor: pointer;
 }
 
-body.smoothtransition #results .image span.title {
+body.smoothtransition #results .image .title {
 	-webkit-transition: all 0.4s;
 	-moz-transition: all 0.4s;
 	-ms-transition: all 0.4s;
@@ -250,8 +278,12 @@ body.smoothtransition #results .image span.title {
     vertical-align: middle;
 }
 
-#results .image:hover span.title {
+#results .image:hover .title {
 	color: inherit;
+}
+
+#results .image-focus:hover .title {
+  color: transparent;
 }
 
 #results .image img,
@@ -273,6 +305,30 @@ body.smoothtransition #results .image span.title {
   font-family:inherit;
 	font-size: inherit;
 	font-weight: 100;
+}
+
+#exit {
+  position: fixed;
+  width: 80px;
+  height: 80px;
+  background: url(x.png);
+  background-size: 80px;
+  top: 10px;
+  right: 15px;
+  z-index: 100;
+  opacity: 0.6;
+  cursor: pointer;
+}
+
+body.nightmode #exit {
+  background-image: url(xl.png);
+}
+
+#slideshowoverlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  width: 100%; height: 100%;
+  z-index: 50;
 }
 
 /* iOS UISwitch */
