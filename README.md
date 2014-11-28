@@ -5,15 +5,18 @@ A simple and clean Reddit Crawler. Enter a subreddit and surf.
 
 ======
 
-*Usage*
+**Usage**
 
 Type the name of a subreddit or multireddit and press enter. No /r/ prefix.
 
 Append a number to the name, seperated with a space, for the following filters:
 
 1 - Top of all Time
+
 2 - New
+
 3 - Top of the Year
+
 4 - Top of the Month
 
 
