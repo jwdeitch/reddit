@@ -7,7 +7,9 @@ A simple and clean Reddit Crawler. Enter a subreddit and surf.
 
 **Usage**
 
-Type the name of a subreddit or multireddit and press enter. No /r/ prefix.
+Type the name of a subreddit or multireddit and press enter. No /r/ prefix. Then scroll through the content. Click on an image for a fullscreen view. Navigate the fullscreen view with arrow keys or just by clicking.
+
+Reddit Crawler recommends related subreddits based on x-post mentions, searching and the top subreddit list.
 
 Append a number to the name, seperated with a space, for the following filters:
 
