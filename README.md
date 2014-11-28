@@ -1,8 +1,33 @@
 Reddit
 ======
 
-A simple and clean Reddit Crawler. Just enter a subreddit and you're set!
+A simple and clean Reddit Crawler. Enter a subreddit and surf.
 
 ======
 
-Reddit Crawler works entirely with javascript, pulling JSON files via the reddit API and parsing imgur, gfycat, or (optionally) even any image links from the subreddit. You can enter 'help' for more information or 'options' to change some settings. Reddit Crawler can optionally utilize LazyLoad (via unveil.js) to work smoothly on slower systems.
+*Usage*
+
+Type the name of a subreddit or multireddit and press enter. No /r/ prefix.
+
+Append a number to the name, seperated with a space, for the following filters:
+
+1 - Top of all Time
+2 - New
+3 - Top of the Year
+4 - Top of the Month
+
+
+Use `help` for informations and `options` to change several settings.
+
+From the settings you can:
+
+- Disable fullscreen Slideshows
+- Disable HTML5 Video
+- Block NSFW Content
+- Increase the scale of the grid layout
+- Enable smooth label transitions
+- Disable Subreddit Suggestions
+- Block sources other than imgur and gfycat
+- Swap to Nightmode
+
+
