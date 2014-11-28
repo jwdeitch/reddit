@@ -66,6 +66,14 @@ h6 {
 	margin: 0.8em;
 }
 
+.panel a {
+  color: inherit;
+}
+
+.panel a:hover {
+  text-decoration: none;
+}
+
 /* Layout */
 
 #wrapper {
