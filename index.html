@@ -18,6 +18,7 @@
 			slideshowLength : 0,
 			slideshowPosition : 0,
 			slideshowActive : false,
+			slideshowPrescroll : 0,
 			counter : 0
 		};
 
@@ -162,7 +163,7 @@
 					$('#loader').remove();
 
 					for (var i = 0; i <= (target.JSON.responseJSON.data.children.length - 1); i++) {
-						target.counter++;
+						
 
 						var postTitle = target.JSON.responseJSON.data.children[i].data.title;
 
@@ -187,7 +188,7 @@
 
 						//Imgur Handling
 						if (target.JSON.responseJSON.data.children[i].data.domain == "i.imgur.com" || target.JSON.responseJSON.data.children[i].data.domain == "imgur.com") {
-
+							target.counter++;
 							var imgurEnding = target.JSON.responseJSON.data.children[i].data.url.split(".");
 							var imgurEndingLength = imgurEnding.length - 1;
 							if (imgurEnding[imgurEndingLength] == "gifv") {
@@ -204,6 +205,7 @@
 
 								if (imgurCode.substr(0,2) == "a/") {
 									// Is Album. Start API Request for the first image.
+									target.counter--;
 
 									var albumTargetUrl = "https://api.imgur.com/3/album/" + imgurCode.slice(2) + "/images";
 
@@ -216,6 +218,7 @@
 									});
 								} else if (imgurCode.substr(0,8) == "gallery/") {
 									// Is Gallery.
+									target.counter--;
 								} else {
 									// Check if it hotlinks the image
 									if (imgurCode.split(".").length == 1) {
@@ -233,6 +236,7 @@
 
 						//Gfycat Handling
 						else if (target.JSON.responseJSON.data.children[i].data.domain == "gfycat.com" && settings.renderHtml5 == true) {
+							target.counter++;
 							var gfycatUrl = target.JSON.responseJSON.data.children[i].data.url;
 							gfycatUrl = gfycatUrl.replace("http://gfycat.com/", "").replace("https://gfycat.com/", "").replace("http://www.gfycat.com/", "").replace("https://www.gfycat.com/", "");
 							target.newElement = $('<div/>', {
@@ -242,6 +246,8 @@
 
 						//Other JPG / PNG / GIF
 						else if (settings.allowOtherSources == true) {
+							target.counter++;
+
 							var otherUrlBase = target.JSON.responseJSON.data.children[i].data.url;
 							var otherUrlEnding = otherUrlBase.substr(otherUrlBase.length - 3).toLowerCase();
 
@@ -255,11 +261,6 @@
 
 						//if (settings.removeOnclick) { $(target.newElement).bind('click', function(){ $(this).remove(); return false; }); };
 						$(target.newElement).attr('data-id', target.counter);
-					};
-
-					// Lazy Load Initiation
-					if (settings.lazyLoading) {
-						//$('img').unveil(200);
 					};
 
 					// Current Subreddit Info Card
@@ -357,34 +358,39 @@
 			target.slideshowActive = true;
 			target.slideshowPosition = $(position).attr('data-id');
 			target.slideshowLength = $('.image').length;
+			target.slideshowPrescroll = $(window).scrollTop();
 
-			$('body').append('<div id="exit"></div><div id="slideshowoverlay"></div>');
-			$('#exit').bind('click', function(){ quitSlideShow(); });
-			$('#slideshowoverlay').bind('click', function(){ switchSlideShow(); });
+			var slideshowImage = $('#results .image').eq(target.slideshowPosition);
+			$('#slideshow').addClass('active').append(slideshowImage.clone());
 
-			$('.image').eq(target.slideshowPosition).addClass('image-focus');
+			$('#results, #wrapper').addClass('hidden');
+
+			// Note: $(something).eq(0) is the jQuery equivalent to something[0]
 		}
 
 		function switchSlideShow(backwards) {
 			if (!target.slideshowActive) { return; };
+			$('#slideshow .image').remove();
+
 			if (backwards) {
-				$('.image').eq(target.slideshowPosition).removeClass('image-focus');
 				target.slideshowPosition--;
 				if (target.slideshowPosition == -1) { target.slideshowPosition = (target.slideshowLength - 1); };
-				$('.image').eq(target.slideshowPosition).addClass('image-focus');
 			} else {
-				$('.image').eq(target.slideshowPosition).removeClass('image-focus');
 				target.slideshowPosition++;
 				if (target.slideshowPosition >= target.slideshowLength) { target.slideshowPosition = 0; };
-				$('.image').eq(target.slideshowPosition).addClass('image-focus');
 			}
+
+			var slideshowImage = $('#results .image').eq(target.slideshowPosition);
+			$('#slideshow').append(slideshowImage.clone());
 		}
 
 		function quitSlideShow() {
 			target.slideshowActive = false;
-			$('.image-focus').removeClass('image-focus');
-			$('#exit, #slideshowoverlay').remove();
+			$('#slideshow .image').remove();
+			$('#results, #wrapper').removeClass('hidden');
+			$('#slideshow').removeClass('active');
 			$('#subreddit-input').focus().select();
+			$(window).scrollTop(target.slideshowPrescroll);
 		}
 
 		
@@ -458,8 +464,13 @@
 				<button>Go!</button>
 			</form>
 		</div>
+
 		<div id="results">
 			
+		</div>
+
+		<div id="slideshow">
+			<div id="exit" onclick="quitSlideShow()"></div><div id="slideshowoverlay" onclick="switchSlideShow()"></div>
 		</div>
 	</body>
 </html>

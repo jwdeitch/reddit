@@ -87,6 +87,10 @@ h6 {
 	background-color: rgba(255,255,255,0.5);
 }
 
+#wrapper.hidden {
+  display: none;
+}
+
 body.nightmode #wrapper {
   background-color: rgba(19, 10, 27, 0.5);
 }
@@ -135,7 +139,11 @@ body.nightmode #wrapper input#subreddit-input {
 	right: 0;
 }
 
-#results .image,
+#results.hidden {
+  display: none;
+}
+
+.image,
 #results .panel,
 #results .panel-suggestion {
 	display: inline-block;
@@ -149,26 +157,30 @@ body.nightmode #wrapper input#subreddit-input {
 	overflow: hidden;
 }
 
-#results .image {
+.image {
   cursor: pointer;
   color: inherit;
   background: #fff center center no-repeat;
   background-size: contain;
 }
 
-body.nightmode #results .image {
+body.nightmode .image {
   background-color: #130a1b;
 }
 
-#results .image.image-focus {
-  position: fixed;
+#slideshow .image {
+  position: absolute;
   z-index: 10;
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
   top: 0;
   left: 0;
   margin: 0;
   pointer-events: auto;
+}
+
+#slideshow .image .title {
+  display: none;
 }
 
 body.hugeimages #results .image {
@@ -249,12 +261,6 @@ body.nightmode #results .image:hover:after {
   background-color: rgba(19, 10, 27, 0.5);
 }
 
-#results .image-focus:hover:after {
-  background-color: rgba(0,0,0,0) !important;
-  pointer-events: none;
-  cursor: default;
-}
-
 #results .image .title {
 	font-weight: 200;
 	font-size: 30px;
@@ -280,7 +286,7 @@ body.smoothtransition #results .image .title {
 	transition: all 0.4s;
 }
 
-#results .image .helper {
+.image .helper {
 	display: inline-block;
     height: 100%;
     vertical-align: middle;
@@ -290,12 +296,8 @@ body.smoothtransition #results .image .title {
 	color: inherit;
 }
 
-#results .image-focus:hover .title {
-  color: transparent;
-}
-
-#results .image img,
-#results .image video {
+.image img,
+.image video {
 	width: 100%;
 	vertical-align: middle;
 }
@@ -316,14 +318,14 @@ body.smoothtransition #results .image .title {
 }
 
 #exit {
-  position: fixed;
+  position: absolute;
   width: 80px;
   height: 80px;
   background: url(x.png);
   background-size: 80px;
   top: 10px;
   right: 15px;
-  z-index: 100;
+  z-index: 70;
   opacity: 0.6;
   cursor: pointer;
 }
@@ -332,11 +334,23 @@ body.nightmode #exit {
   background-image: url(xl.png);
 }
 
-#slideshowoverlay {
+#slideshow {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
   width: 100%; height: 100%;
   z-index: 50;
+  display: none;
+}
+
+#slideshow.active {
+  display: block;
+}
+
+#slideshowoverlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  width: 100%; height: 100%;
+  z-index: 60;
 }
 
 /* iOS UISwitch */
