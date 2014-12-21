@@ -180,7 +180,14 @@ body.nightmode .image {
 }
 
 #slideshow .image .title {
-  display: none;
+  bottom: 25px;
+  position: absolute;
+  text-align: center;
+  width: 100%;
+  right: 0;
+  left: 0;
+  font-size: 34px;
+  background-color: rgba(255, 255, 255, 0.8);
 }
 
 body.hugeimages #results .image {
@@ -328,6 +335,10 @@ body.smoothtransition #results .image .title {
   z-index: 70;
   opacity: 0.6;
   cursor: pointer;
+}
+
+#exit:hover {
+  opacity: 0.9;
 }
 
 body.nightmode #exit {
