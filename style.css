@@ -20,8 +20,8 @@ body {
 
 body.nightmode {
   color: #fff;
-  background-color: #211130;
   background-color: #130a1b;
+  background-color: #222;
 }
 
 p, .panel {
@@ -92,7 +92,7 @@ h6 {
 }
 
 body.nightmode #wrapper {
-  background-color: rgba(19, 10, 27, 0.5);
+  background-color: rgba(34, 34, 34, 0.5);
 }
 
 #wrapper input#subreddit-input {
@@ -130,6 +130,21 @@ body.nightmode #wrapper input#subreddit-input {
    color:    rgba(30,30,30,0.3);
 }
 
+body.nightmode ::-webkit-input-placeholder { /* WebKit browsers */
+    color:    rgba(230,230,230,0.3);
+}
+body.nightmode :-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+   color:    rgba(230,230,230,0.3);
+   opacity:  1;
+}
+body.nightmode ::-moz-placeholder { /* Mozilla Firefox 19+ */
+   color:    rgba(230,230,230,0.3);
+   opacity:  1;
+}
+body.nightmode :-ms-input-placeholder { /* Internet Explorer 10+ */
+   color:    rgba(230,230,230,0.3);
+}
+
 #results {
 	text-align: center;
 	position: relative;
@@ -165,7 +180,7 @@ body.nightmode #wrapper input#subreddit-input {
 }
 
 body.nightmode .image {
-  background-color: #130a1b;
+  background-color: #222;
 }
 
 #slideshow .image {
@@ -188,6 +203,10 @@ body.nightmode .image {
   left: 0;
   font-size: 34px;
   background-color: rgba(255, 255, 255, 0.8);
+}
+
+body.nightmode #slideshow .image .title {
+  background-color: rgba(34, 34, 34, 0.8);
 }
 
 body.hugeimages #results .image {
@@ -265,7 +284,7 @@ body.smoothtransition #results .image:after {
 }
 
 body.nightmode #results .image:hover:after {
-  background-color: rgba(19, 10, 27, 0.5);
+  background-color: rgba(34, 34, 34, 0.5);
 }
 
 #results .image .title {
