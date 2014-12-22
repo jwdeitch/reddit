@@ -358,7 +358,7 @@
 			target.slideshowActive = true;
 			target.slideshowPosition = $(position).attr('data-id');
 			target.slideshowLength = $('.image').length;
-			target.slideshowPrescroll = $(window).scrollTop();
+			//target.slideshowPrescroll = $(window).scrollTop();
 
 			var slideshowImage = $('#results .image').eq(target.slideshowPosition);
 			$('#slideshow').addClass('active').append(slideshowImage.clone());
@@ -390,7 +390,7 @@
 			$('#results, #wrapper').removeClass('hidden');
 			$('#slideshow').removeClass('active');
 			$('#subreddit-input').focus().select();
-			$(window).scrollTop(target.slideshowPrescroll);
+			$(window).scrollTop(($('.image').eq(target.slideshowPosition).offset().top - 110));
 		}
 
 		
