@@ -142,6 +142,7 @@
 			if (~target.subreddit.indexOf("/m/")) {
 				target.subreddit = target.subreddit.replace("/user/", "").replace("/u/", "");
 				target.url = "http://www.reddit.com/user/" + target.subreddit + target.sort;
+				document.title = "/u/" + target.subreddit + " - Reddit Crawler";
 			};
 
 			target.xpostMentions.length = 0;
@@ -243,8 +244,6 @@
 							target.newElement = $('<div/>', {
 								class : 'image'
 							}).html("<span class='helper'></span><video class='gfycat' data-gfyid='" + gfycatUrl + "' autoplay='' loop='' muted='' preload='' poster='http://thumbs.gfycat.com/" + gfycatUrl + "-poster.jpg'></video><span class='title'>" + postTitle + "</span>").appendTo('#results');
-
-							// <source src='http://giant.gfycat.com/" + gfycatUrl + ".webm' type='video/webm'><source src='http://giant.gfycat.com/" + gfycatUrl + ".mp4' type='video/mp4'><source src='http://fat.gfycat.com/" + gfycatUrl + ".webm' type='video/webm'><source src='http://fat.gfycat.com/" + gfycatUrl + ".mp4' type='video/mp4'><source src='http://zippy.gfycat.com/" + gfycatUrl + ".webm' type='video/webm'><source src='http://zippy.gfycat.com/" + gfycatUrl + ".mp4' type='video/mp4'></video>
 						}
 
 						//Other JPG / PNG / GIF
