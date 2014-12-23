@@ -450,9 +450,12 @@
 			});*/
 
 			$(document).keydown(function(e) { 
-				if (e.which == 37) { switchSlideShow(true); };
-				if (e.which == 39) { switchSlideShow(); };
-				if (e.which == 27) { quitSlideShow(); };
+				if (e.which == 37 && target.slideshowActive) { switchSlideShow(true); }
+				else if (e.which == 39 || e.which == 32 && target.slideshowActive) { switchSlideShow(); }
+				else if (e.which == 27 || e.which == 17 && target.slideshowActive) { quitSlideShow(); }
+				else if (e.which == 17 && !target.slideshowActive) { 
+					setupSlideShow($('.image').eq(0));
+				};
 			});
 
 			$(window).on('focus', function() {
