@@ -239,10 +239,12 @@
 							target.counter++;
 							var gfycatUrl = target.JSON.responseJSON.data.children[i].data.url;
 							gfycatUrl = gfycatUrl.replace("http://gfycat.com/", "").replace("https://gfycat.com/", "").replace("http://www.gfycat.com/", "").replace("https://www.gfycat.com/", "");
+
 							target.newElement = $('<div/>', {
 								class : 'image'
-							}).html("<span class='helper'></span><video autoplay='' loop='' muted='' preload='' poster='http://thumbs.gfycat.com/" + gfycatUrl + "-poster.jpg'><source src='http://giant.gfycat.com/" + gfycatUrl + ".webm' type='video/webm'><source src='http://giant.gfycat.com/" + gfycatUrl + ".mp4' type='video/mp4'></video><span class='title'>" + postTitle + "</span>").appendTo('#results');
-							// <source src='http://fat.gfycat.com/" + gfycatUrl + ".webm' type='video/webm'><source src='http://fat.gfycat.com/" + gfycatUrl + ".mp4' type='video/mp4'><source src='http://zippy.gfycat.com/" + gfycatUrl + ".webm' type='video/webm'><source src='http://zippy.gfycat.com/" + gfycatUrl + ".mp4' type='video/mp4'></video>
+							}).html("<span class='helper'></span><video class='gfycat' data-gfyid='" + gfycatUrl + "' autoplay='' loop='' muted='' preload='' poster='http://thumbs.gfycat.com/" + gfycatUrl + "-poster.jpg'></video><span class='title'>" + postTitle + "</span>").appendTo('#results');
+
+							// <source src='http://giant.gfycat.com/" + gfycatUrl + ".webm' type='video/webm'><source src='http://giant.gfycat.com/" + gfycatUrl + ".mp4' type='video/mp4'><source src='http://fat.gfycat.com/" + gfycatUrl + ".webm' type='video/webm'><source src='http://fat.gfycat.com/" + gfycatUrl + ".mp4' type='video/mp4'><source src='http://zippy.gfycat.com/" + gfycatUrl + ".webm' type='video/webm'><source src='http://zippy.gfycat.com/" + gfycatUrl + ".mp4' type='video/mp4'></video>
 						}
 
 						//Other JPG / PNG / GIF
@@ -260,9 +262,11 @@
 							} else { target.counter--; };
 						};
 
-						//if (settings.removeOnclick) { $(target.newElement).bind('click', function(){ $(this).remove(); return false; }); };
 						$(target.newElement).attr('data-id', target.counter);
 					};
+
+					// Setup GFYs
+					setupGfy();
 
 					// Current Subreddit Info Card
 					if (target.mode != 'top - ever') {
@@ -327,6 +331,25 @@
 
 			});
 
+		}
+
+		function setupGfy() {
+			$('.gfycat').each(function(){
+				var instGfyElement = $(this);
+				var instGfyId = instGfyElement.data("gfyid");
+
+				var instGfyJson = $.ajax({
+					method : "get",
+					url : "http://gfycat.com/cajax/get/" + instGfyId,
+					dataType : "json",
+
+					success : function(){
+						var instGfyWebm = instGfyJson.responseJSON.gfyItem.webmUrl;
+						var instGfyMp4 = instGfyJson.responseJSON.gfyItem.mp4Url;
+						instGfyElement.append("<source src='" + instGfyWebm + "' type='video/webm'><source src='" + instGfyMp4 + "' type='video/mp4'>");
+					}
+				});
+			});
 		}
 
 		function getRandomColor() {
