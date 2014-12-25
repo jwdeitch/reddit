@@ -86,7 +86,7 @@
 
 			//Check if "Help" is used, if so, cancel everything and display the Help module
 			if (target.subreddit == "help") {
-				$('#results').html(' ').append('<div class="panel"><h1>Help</h1><br><br><h2>General</h2>Use <pre>options</pre> to change your settings.<br><br>Click on a post to remove it from your view.<br><br>You can also enter a Multireddit.<br><br>Append a number to the subreddit to filter:<br><br><pre>0</pre> - Hot (default)<br><pre>1</pre> - Top of all Time<br><pre>2</pre> - New<br><pre>3</pre> - Top of the Year<br><pre>4</pre> - Top of the Month<br><br><pre>cats 3</pre> for the best cats of the year<br><pre>gif 1</pre> for the best GIFs of all time.<br><br>Visit <a href="http://github.com/cetigo/reddit" target="_blank">github</a> for more details.<br><br></div>');
+				$('#results').html(' ').append('<div class="panel"><h1>Help</h1><br><pre>CTRL</pre> - Enter / Exit Slideshow<br><pre>Spacebar</pre> - Next image<br><pre>&larr;</pre> <pre>&rarr;</pre> - Switch images<br><br>Enter <pre>options</pre> to change your settings.<br><br>You can also enter a Multireddit.<br><br>Append a number to the subreddit to filter:<br><br><pre>0</pre> - Hot (default)<br><pre>1</pre> - Top of all Time<br><pre>2</pre> - New<br><pre>3</pre> - Top of the Year<br><pre>4</pre> - Top of the Month<br><br><pre>cats 3</pre> for the best cats of the year<br><pre>gif 1</pre> for the best GIFs of all time.<br><br>Visit <a href="http://github.com/cetigo/reddit" target="_blank">github</a> for more details.<br><br></div>');
 				document.title = "Help - Reddit Crawler";
 				return;
 			};
