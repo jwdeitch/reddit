@@ -292,6 +292,20 @@ body.nightmode #results .image:hover:after {
   background-color: rgba(34, 34, 34, 0.5);
 }
 
+#results .image.focus:before {
+  content: '';
+  position: absolute;
+  top: 50px;
+  right: 50px;
+  bottom: 50px;
+  left: 50px;
+  border: 40px dashed rgba(153, 213, 255, 0.3);
+}
+
+body.nightmode #results .image.focus:before {
+  border-color: rgba(137, 206, 255, 0.5);
+}
+
 #results .image .title {
 	font-weight: 200;
 	font-size: 30px;

@@ -16,7 +16,7 @@
 			xpostMentions : [],
 			isNSFW : false,
 			slideshowLength : 0,
-			slideshowPosition : 0,
+			slideshowPosition : "0",
 			slideshowActive : false,
 			slideshowPrescroll : 0,
 			counter : 0
@@ -148,7 +148,7 @@
 			target.xpostMentions.length = 0;
 			target.isNSFW = false;
 			target.slideshowLength = 0;
-			target.slideshowPosition = 0;
+			
 			target.counter = -1;
 
 			// Display "Loading" Dialogue
@@ -267,6 +267,10 @@
 					// Setup GFYs
 					setupGfy();
 
+					// Setup Slideshow Position
+					target.slideshowPosition = $('.image').eq(0).attr('data-id');
+					target.slideshowLength = $('.image').length;
+
 					// Current Subreddit Info Card
 					if (target.mode != 'top - ever') {
 						$('<div/>', { class : 'panel-suggestion', onclick : "fetchJson('" + target.subreddit + " 1')" }).html('Switch to <br><span style="color: ' + getRandomColor() + '; opacity: 0.5;">/r/</span>' + target.subreddit + '<br>top - ever').appendTo('#results');
@@ -380,7 +384,6 @@
 			target.slideshowActive = true;
 			target.slideshowPosition = $(position).attr('data-id');
 			target.slideshowLength = $('.image').length;
-			//target.slideshowPrescroll = $(window).scrollTop();
 
 			var slideshowImage = $('#results .image').eq(target.slideshowPosition);
 			$('#slideshow').addClass('active').append(slideshowImage.clone());
@@ -391,8 +394,6 @@
 		}
 
 		function switchSlideShow(backwards) {
-			if (!target.slideshowActive) { return; };
-			$('#slideshow .image').remove();
 
 			if (backwards) {
 				target.slideshowPosition--;
@@ -402,8 +403,16 @@
 				if (target.slideshowPosition >= target.slideshowLength) { target.slideshowPosition = 0; };
 			}
 
-			var slideshowImage = $('#results .image').eq(target.slideshowPosition);
-			$('#slideshow').append(slideshowImage.clone());
+			if (!target.slideshowActive) {
+				$('.focus').removeClass('focus');
+				$('#results .image').eq(target.slideshowPosition).addClass('focus');
+				$(window).scrollTop(($('.image').eq(target.slideshowPosition).offset().top - 110));
+			} else {
+				$('#slideshow .image').remove();
+	
+				var slideshowImage = $('#results .image').eq(target.slideshowPosition);
+				$('#slideshow').append(slideshowImage.clone());
+			}
 		}
 
 		function quitSlideShow() {
@@ -412,6 +421,10 @@
 			$('#results, #wrapper').removeClass('hidden');
 			$('#slideshow').removeClass('active');
 			$('#subreddit-input').focus().select();
+
+			$('.focus').removeClass('focus');
+			$('#results .image').eq(target.slideshowPosition).addClass('focus');
+
 			$(window).scrollTop(($('.image').eq(target.slideshowPosition).offset().top - 110));
 		}
 
@@ -441,20 +454,12 @@
 				};
 			}, 15000);
 
-			/* Instantly Clear Input on first backspace
-			$('input').keydown(function(e) {
-			    if ((e.which == 8 || e.which == 46) && system.firstPress == true && system.usedFilter == false) {
-			        $(this).val('');
-			    };
-			    system.firstPress = false;
-			});*/
-
 			$(document).keydown(function(e) { 
-				if (e.which == 37 && target.slideshowActive) { switchSlideShow(true); }
-				else if (e.which == 39 || e.which == 32 && target.slideshowActive) { switchSlideShow(); }
+				if (e.which == 37) { switchSlideShow(true); }
+				else if (e.which == 39 || e.which == 32) { switchSlideShow(); }
 				else if (e.which == 27 || e.which == 17 && target.slideshowActive) { quitSlideShow(); }
 				else if (e.which == 17 && !target.slideshowActive) { 
-					setupSlideShow($('.image').eq(0));
+					setupSlideShow($('.image').eq(target.slideshowPosition));
 				};
 			});
 
