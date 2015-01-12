@@ -19,7 +19,9 @@
 			slideshowPosition : "0",
 			slideshowActive : false,
 			slideshowPrescroll : 0,
-			counter : 0
+			highlightingActive : false,
+			counter : 0,
+			specialMode : false
 		};
 
 		var settings = {
@@ -42,9 +44,6 @@
 			usedFilter : false,
 			cantSaveOptions : false
 		};
-
-		var keylisten1;
-		var keylisten2;
 
 		var recommendationsSfw = ["aww", "Pics", "Cats", "awwducational", "EarthPorn", "funny", "AdviceAnimals", "gifs", "DataIsBeautiful", "Art", "OldSchoolCool", "Wallpapers", "WoahDude", "reactiongifs", "AbandonedPorn", "gaming", "food", "perfecttiming", "minimalism", "Offensive_Wallpapers", "blue", "BirdsWithArms", "FoodPorn", "unexpected"];
 		var recommendationsNsfw = ["NSFW", "BustyPetite", "NSFW_Gif", "Oilporn", "cfnm", "Xsome", "PrettyGirls", "Titties", "SexyGirls", "bonermaterial", "gentlemanboners", "Boobies", "Ass", "Anal", "Cumsluts", "NSFWHardcore", "MILF", "Blowjobs", "GirlsinYogapants", "holdthemoan", "burstingout", "Perky", "60fpsporn", "O_Faces", "LegalTeens", "celebnsfw", "datgap", "SexyButNotPorn"];
@@ -86,8 +85,9 @@
 
 			//Check if "Help" is used, if so, cancel everything and display the Help module
 			if (target.subreddit == "help") {
-				$('#results').html(' ').append('<div class="panel"><h1>Help</h1><br><pre>CTRL</pre> - Enter / Exit Slideshow<br><pre>Spacebar</pre> - Next image<br><pre>&larr;</pre> <pre>&rarr;</pre> - Switch images<br><br>Enter <pre>options</pre> to change your settings.<br><br>You can also enter a Multireddit.<br><br>Append a number to the subreddit to filter:<br><br><pre>0</pre> - Hot (default)<br><pre>1</pre> - Top of all Time<br><pre>2</pre> - New<br><pre>3</pre> - Top of the Year<br><pre>4</pre> - Top of the Month<br><br><pre>cats 3</pre> for the best cats of the year<br><pre>gif 1</pre> for the best GIFs of all time.<br><br>Visit <a href="http://github.com/cetigo/reddit" target="_blank">github</a> for more details.<br><br></div>');
+				$('#results').html(' ').append('<div class="panel"><h1>Help</h1><br><pre>CTRL</pre> - Enter / Exit Slideshow<br><pre>&larr;</pre> <pre>&rarr;</pre> - Switch images<br><pre>&uarr;</pre> <pre>&darr;</pre> - Switch between text and images<br><pre>F11</pre> - Fullscreen<br><br>Enter <pre>options</pre> to change your settings.<br><br>You can also enter a Multireddit.<br><br>Append a number to the subreddit to filter:<br><br><pre>0</pre> - Hot (default)<br><pre>1</pre> - Top of all Time<br><pre>2</pre> - New<br><pre>3</pre> - Top of the Year<br><pre>4</pre> - Top of the Month<br><br><pre>cats 3</pre> for the best cats of the year<br><pre>gif 1</pre> for the best GIFs of all time.<br><br>Visit <a href="http://github.com/cetigo/reddit" target="_blank">github</a> for more details.<br><br></div>');
 				document.title = "Help - Reddit Crawler";
+				target.specialMode = true;
 				return;
 			};
 
@@ -100,6 +100,7 @@
 				};
 
 				document.title = "Options - Reddit Crawler";
+				target.specialMode = true;
 
 				if (settings.enableSlideshow) { $('#optionbox-1').prop('checked', true); };
 				if (settings.renderHtml5) { $('#optionbox-2').prop('checked', true); };
@@ -146,6 +147,7 @@
 			};
 
 			target.xpostMentions.length = 0;
+			target.specialMode = false;
 			target.isNSFW = false;
 			target.slideshowLength = 0;
 			
@@ -356,12 +358,17 @@
 		}
 
 		function getRandomColor() {
-    		var letters = '0123456789ABCDEF'.split('');
-    		var color = '#';
-    		for (var i = 0; i < 6; i++ ) {
-     	 	  color += letters[Math.floor(Math.random() * 16)];
-    		}
-    		return color;
+    		return "hsla(" + getRandomInt(0, 360) + ", 60%, 50%, 1)";
+		}
+
+		function getRandomInt(min, max) {
+		    return Math.floor(Math.random() * (max - min + 1)) + min;
+		}
+
+		$.fn.preload = function() {
+		    this.each(function(){
+		        $('<img/>')[0].src = this;
+		    });
 		}
 
 		function evaluateSettings() {
@@ -379,7 +386,7 @@
 		}
 
 		function setupSlideShow(position) {
-			if (target.slideshowActive) { return; };
+			if (target.slideshowActive || target.specialMode) { return; };
 
 			target.slideshowActive = true;
 			target.slideshowPosition = $(position).attr('data-id');
@@ -394,6 +401,8 @@
 		}
 
 		function switchSlideShow(backwards) {
+			// If neither the slideshow nor the highlighting is active, nothing happens
+			if (!target.slideshowActive && !target.highlightingActive) { return; };
 
 			if (backwards) {
 				target.slideshowPosition--;
@@ -401,12 +410,16 @@
 			} else {
 				target.slideshowPosition++;
 				if (target.slideshowPosition >= target.slideshowLength) { target.slideshowPosition = 0; };
-			}
+			};
 
 			if (!target.slideshowActive) {
-				$('.focus').removeClass('focus');
-				$('#results .image').eq(target.slideshowPosition).addClass('focus');
-				$(window).scrollTop(($('.image').eq(target.slideshowPosition).offset().top - 110));
+				// This is the blue highlighting mode
+				if (target.highlightingActive) {
+					$('#subreddit-input').blur();
+					$('.focus').removeClass('focus');
+					$('#results .image').eq(target.slideshowPosition).addClass('focus');
+					$(window).scrollTop(($('.image').eq(target.slideshowPosition).offset().top - 110));
+				};
 			} else {
 				$('#slideshow .image').remove();
 	
@@ -415,12 +428,36 @@
 			}
 		}
 
+		function toggleHighlight(inverse) {
+			// No interaction when the slideshow is active
+			if (target.slideshowActive) { return; };
+
+			// Upon enabling highlighting
+			if (inverse) {
+				if (!target.highlightingActive) {
+					target.highlightingActive = true;
+					$('#subreddit-input').blur();
+					$('#results .image').eq(target.slideshowPosition).addClass('focus');
+					$(window).scrollTop(($('.image').eq(target.slideshowPosition).offset().top - 110));
+				};
+				return;
+			};
+
+			// Upon disabling highlighting
+			if (target.highlightingActive) {
+				target.highlightingActive = false;
+				$('#subreddit-input').focus().select();
+				$('.focus').removeClass('focus');
+			};
+		}
+
 		function quitSlideShow() {
 			target.slideshowActive = false;
+			target.highlightingActive = true;
 			$('#slideshow .image').remove();
 			$('#results, #wrapper').removeClass('hidden');
 			$('#slideshow').removeClass('active');
-			$('#subreddit-input').focus().select();
+			$('#subreddit-input').blur();
 
 			$('.focus').removeClass('focus');
 			$('#results .image').eq(target.slideshowPosition).addClass('focus');
@@ -431,6 +468,7 @@
 		
 
 		$(function(){
+
 			// Intro Text
 			setTimeout(function(){
 				if (system.untouched) {
@@ -454,14 +492,18 @@
 				};
 			}, 15000);
 
+			// Key Listener
 			$(document).keydown(function(e) { 
 				if (e.which == 37) { switchSlideShow(true); }
 				else if (e.which == 39 || e.which == 32) { switchSlideShow(); }
+				else if (e.which == 38) { toggleHighlight(false); e.preventDefault(); } // Key Up
+				else if (e.which == 40) { toggleHighlight(true); e.preventDefault(); }
 				else if (e.which == 27 || e.which == 17 && target.slideshowActive) { quitSlideShow(); }
-				else if (e.which == 17 && !target.slideshowActive) { 
-					setupSlideShow($('.image').eq(target.slideshowPosition));
-				};
+				else if (e.which == 17 && !target.slideshowActive) { setupSlideShow($('.image').eq(target.slideshowPosition)); };
 			});
+
+			// Image Preloading
+			$(['x.png','xl.png']).preload();
 
 			$(window).on('focus', function() {
 				if (!target.slideshowActive) {
@@ -490,7 +532,7 @@
 	<body>
 		<div id="wrapper">
 			<form onsubmit="fetchJson(); return false;">
-				<input type="text" autofocus="true" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Enter a Subreddit" id="subreddit-input" onclick="this.select();">
+				<input type="text" autofocus="true" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Enter a Subreddit" id="subreddit-input" onclick="toggleHighlight(false);">
 				<button>Go!</button>
 			</form>
 		</div>
