@@ -48,32 +48,42 @@
 		var recommendationsSfw = ["aww", "Pics", "Cats", "awwducational", "EarthPorn", "funny", "AdviceAnimals", "gifs", "DataIsBeautiful", "Art", "OldSchoolCool", "Wallpapers", "WoahDude", "reactiongifs", "AbandonedPorn", "gaming", "food", "perfecttiming", "minimalism", "Offensive_Wallpapers", "blue", "BirdsWithArms", "FoodPorn", "unexpected"];
 		var recommendationsNsfw = ["NSFW", "BustyPetite", "NSFW_Gif", "Oilporn", "cfnm", "Xsome", "PrettyGirls", "Titties", "SexyGirls", "bonermaterial", "gentlemanboners", "Boobies", "Ass", "Anal", "Cumsluts", "NSFWHardcore", "MILF", "Blowjobs", "GirlsinYogapants", "holdthemoan", "burstingout", "Perky", "60fpsporn", "O_Faces", "LegalTeens", "celebnsfw", "datgap", "SexyButNotPorn"];
 
+		var favorites = [];
+
+
 		function fetchJson(subredditOverwrite) {
+			// Try to save Settings
 			if (system.usedSettings) { 
 				try {
 					localStorage.setItem('settings', JSON.stringify(settings)); 
-				}
-				catch(err) {
+				} catch(err) {
 					system.cantSaveOptions = true;
 				}
 			};
 
-			if (system.untouched) { system.untouched = false; };
-			system.firstPress = true;
+			// Try to save the favorites
+			try {
+				localStorage.setItem('favorites', JSON.stringify(favorites)); 
+			} catch(err) {
+				system.cantSaveOptions = true;
+			};
 
+			if (system.untouched) { system.untouched = false; };
+				system.firstPress = true;
+
+			// Gather target Subreddit
 			if (!subredditOverwrite) {
 				target.subreddit = $('#subreddit-input').val().trim();
-				if (target.subreddit == '') return;
+				//if (target.subreddit == '') return;
 			} else {
 				target.subreddit = subredditOverwrite;
 				$('#subreddit-input').val(subredditOverwrite);
 			};
 
-
 			// Set Hash
 			//window.location.hash = "!/" + target.subreddit;
 
-			//Check for command after subreddit name
+			//Check for filter after subreddit name
 			if (target.subreddit.split(" ").length > 1) {
 				system.usedFilter = true;
 				sortFilter = target.subreddit.split(" ")[1];
@@ -83,8 +93,27 @@
 				sortFilter = 0;
 			}
 
+			if (target.subreddit == "") {
+				$('#results').html(' ');
+				var panelsToDraw = 5;
+
+				for (var i = favorites.length - 1; i >= 0; i--) {
+					if (i == 6) break;
+					$('<div/>', { class : 'panel-suggestion panel-favorite', onclick : "fetchJson('" + favorites[i][0] + "')" }).html('<span style="color: ' + getRandomColor() + '; opacity: 0.5;">/r/</span>' + favorites[i][0]).appendTo('#results');
+					panelsToDraw--;
+				};
+
+				for (var i = panelsToDraw; i >= 0; i--) {
+					$('<div/>', { class : 'panel-suggestion panel-favorite panel-disabled' }).html('').appendTo('#results');
+				};
+				
+				document.title = "Reddit Crawler";
+				target.specialMode = true;
+				return;
+			}
+
 			//Check if "Help" is used, if so, cancel everything and display the Help module
-			if (target.subreddit == "help") {
+			if (target.subreddit.toLowerCase() == "help") {
 				$('#results').html(' ').append('<div class="panel"><h1>Help</h1><br><pre>CTRL</pre> - Enter / Exit Slideshow<br><pre>&larr;</pre> <pre>&rarr;</pre> - Switch images<br><pre>&uarr;</pre> <pre>&darr;</pre> - Switch between text and images<br><pre>F11</pre> - Fullscreen<br><br>Enter <pre>options</pre> to change your settings.<br><br>You can also enter a Multireddit.<br><br>Append a number to the subreddit to filter:<br><br><pre>0</pre> - Hot (default)<br><pre>1</pre> - Top of all Time<br><pre>2</pre> - New<br><pre>3</pre> - Top of the Year<br><pre>4</pre> - Top of the Month<br><br><pre>cats 3</pre> for the best cats of the year<br><pre>gif 1</pre> for the best GIFs of all time.<br><br>Visit <a href="http://github.com/cetigo/reddit" target="_blank">github</a> for more details.<br><br></div>');
 				document.title = "Help - Reddit Crawler";
 				target.specialMode = true;
@@ -92,7 +121,7 @@
 			};
 
 			//Check if "Options" is used, if so, cancel everything, display the Options module and set up the listeners
-			if (target.subreddit == "options") {
+			if (target.subreddit.toLowerCase() == "options") {
 				$('#results').html(' ').append('<div class="panel panel-options"><h1>Options</h1><br><br><h2>General</h2><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-1"><h6>Enable Slideshow</h6></div><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-3"><h6>Show NSFW Content</h6></div><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-4"><h6>Huge Images</h6></div><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-6"><h6>Suggest Subreddits</h6></div><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-9"><h6>Night Mode</h6></div><h2>Performance</h2><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-2"><h6>Render HTML5 Video</h6></div><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-5"><h6>Smooth Labels</h6></div><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-7"><h6>Allow all Sources</h6></div><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-8"><h6>Use Lazy Loading</h6></div></div>');
 
 				if (system.cantSaveOptions) {
@@ -135,7 +164,9 @@
 			else { target.sort = "/hot.json"; target.mode = "hot" };
 
 			target.subreddit = target.subreddit.replace("/r/", "");
-			document.title = "/r/" + target.subreddit + " - Reddit Crawler";
+			document.title = target.subreddit + " - Reddit Crawler";
+
+			favoriteHandler(target.subreddit);
 
 			target.url = "http://www.reddit.com/r/" + target.subreddit + target.sort;
 
@@ -143,7 +174,7 @@
 			if (~target.subreddit.indexOf("/m/")) {
 				target.subreddit = target.subreddit.replace("/user/", "").replace("/u/", "");
 				target.url = "http://www.reddit.com/user/" + target.subreddit + target.sort;
-				document.title = "/u/" + target.subreddit + " - Reddit Crawler";
+				document.title = target.subreddit + " - Reddit Crawler";
 			};
 
 			target.xpostMentions.length = 0;
@@ -207,9 +238,9 @@
 								var imgurCode = target.JSON.responseJSON.data.children[i].data.url.replace("http://i.imgur.com/", "").replace("https://i.imgur.com/", "").replace("http://imgur.com/", "").replace("https://imgur.com/", "").replace("http://www.imgur.com/", "").replace("https://www.imgur.com/", "");
 
 								if (imgurCode.substr(0,2) == "a/") {
-									// Is Album. Start API Request for the first image.
+									
 									target.counter--;
-
+									/* Is Album. Start API Request for the first image.
 									var albumTargetUrl = "https://api.imgur.com/3/album/" + imgurCode.slice(2) + "/images";
 
 									var albumJSON = $.getJSON(target.url, function(){
@@ -218,7 +249,7 @@
 											class : 'image',
 											style : "background-image: url(" + albumTargetUrl + ")"
 										}).html('<span class="title">' + postTitle + '</span>').appendTo('#results');
-									});
+									});*/
 								} else if (imgurCode.substr(0,8) == "gallery/") {
 									// Is Gallery.
 									target.counter--;
@@ -465,6 +496,28 @@
 			$(window).scrollTop(($('.image').eq(target.slideshowPosition).offset().top - 110));
 		}
 
+		function favoriteHandler(name) {
+			var subExists = false;
+
+			for (var i = favorites.length - 1; i >= 0; i--) {
+				if (favorites[i][0] == name.toLowerCase()) {
+					favorites[i][1]++;
+					subExists = true;
+					break;
+				}
+			};
+
+			// Create new Entry
+			if (!subExists) {
+				favorites[favorites.length] = [name, 1];
+			};
+
+			// Sort the Array
+			favorites = favorites.sort(function(a,b) {
+			    return b[1] - a[1];
+			});
+		}
+
 		
 
 		$(function(){
@@ -513,10 +566,32 @@
 
 			// Check Localstorage Settings
 			var retrievedObject = localStorage.getItem('settings');
+			var retrievedObject2 = localStorage.getItem('favorites');
 		
 			if (retrievedObject) {
 				settings = JSON.parse(retrievedObject);
 				evaluateSettings();
+			};
+
+			if (retrievedObject2) {
+				favorites = JSON.parse(retrievedObject2);
+				system.untouched = false;
+				$('#results').html('');
+				var panelsToDraw = 5;
+
+				for (var i = favorites.length - 1; i >= 0; i--) {
+					if (i == 6) break;
+					$('<div/>', { class : 'panel-suggestion panel-favorite', onclick : "fetchJson('" + favorites[i][0] + "')" }).html('<span style="color: ' + getRandomColor() + '; opacity: 0.5;">/r/</span>' + favorites[i][0]).appendTo('#results');
+					panelsToDraw--;
+				};
+
+				for (var i = panelsToDraw; i >= 0; i--) {
+					$('<div/>', { class : 'panel-suggestion panel-favorite panel-disabled' }).html('').appendTo('#results');
+				};
+				
+				document.title = "Reddit Crawler";
+				target.specialMode = true;
+
 			};
 
 			// Check Hash

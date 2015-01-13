@@ -251,6 +251,15 @@ body.hugeimages #results .image {
   height: 300px;
 }
 
+#results .panel-suggestion.panel-favorite {
+  padding-top: 70px;
+  height: 50px;
+}
+
+#results .panel-suggestion.panel-favorite.panel-disabled {
+  cursor: default;
+}
+
 #results .panel-suggestion span {
   -webkit-transition: all 0.3s;
   -moz-transition: all 0.3s;
@@ -292,7 +301,8 @@ body.nightmode #results .image:hover:after {
   background-color: rgba(34, 34, 34, 0.5);
 }
 
-#results .image.focus:before {
+#results .image.focus:before,
+#results .panel-suggestion.focus:before {
   content: '';
   position: absolute;
   top: 50px;
@@ -302,7 +312,8 @@ body.nightmode #results .image:hover:after {
   border: 40px dashed rgba(153, 213, 255, 0.3);
 }
 
-body.nightmode #results .image.focus:before {
+body.nightmode #results .image.focus:before,
+body.nightmode #results .panel-suggestion.focus:before {
   border-color: rgba(137, 206, 255, 0.5);
 }
 
