@@ -114,7 +114,7 @@
 
 			//Check if "Help" is used, if so, cancel everything and display the Help module
 			if (target.subreddit.toLowerCase() == "help") {
-				$('#results').html(' ').append('<div class="panel"><h1>Help</h1><br><pre>CTRL</pre> - Enter / Exit Slideshow<br><pre>&larr;</pre> <pre>&rarr;</pre> - Switch images<br><pre>&uarr;</pre> <pre>&darr;</pre> - Switch between text and images<br><pre>F11</pre> - Fullscreen<br><br>Enter <pre>options</pre> to change your settings.<br><br>You can also enter a Multireddit.<br><br>Append a number to the subreddit to filter:<br><br><pre>0</pre> - Hot (default)<br><pre>1</pre> - Top of all Time<br><pre>2</pre> - New<br><pre>3</pre> - Top of the Year<br><pre>4</pre> - Top of the Month<br><br><pre>cats 3</pre> for the best cats of the year<br><pre>gif 1</pre> for the best GIFs of all time.<br><br>Visit <a href="http://github.com/cetigo/reddit" target="_blank">github</a> for more details.<br><br></div>');
+				$('#results').html(' ').append('<div class="panel panel-help"><h1>Help</h1><br><pre>CTRL</pre> or <pre>ALT</pre><span>Enter / Exit Slideshow</span><br><pre>&larr;</pre> <pre>&rarr;</pre><span>Switch images</span><br><pre>&uarr;</pre> <pre>&darr;</pre><span>Switch between text and images</span><br><pre>F11</pre><span>Fullscreen</span><br><br>Enter <pre>options</pre> to change your settings.<br><br>You can also enter a Multireddit.<br><br>Append a number to the subreddit to filter:<br><br><pre>0</pre> - Hot (default)<br><pre>1</pre> - Top of all Time<br><pre>2</pre> - New<br><pre>3</pre> - Top of the Year<br><pre>4</pre> - Top of the Month<br><br><pre>cats 3</pre> for the best cats of the year<br><pre>gif 1</pre> for the best GIFs of all time.<br><br>Visit <a href="http://github.com/cetigo/reddit" target="_blank">github</a> for more details.<br><br></div>');
 				document.title = "Help - Reddit Crawler";
 				target.specialMode = true;
 				return;
@@ -547,17 +547,22 @@
 
 			// Key Listener
 			$(document).keydown(function(e) { 
-				if (e.which == 37) { switchSlideShow(true); }
-				else if (e.which == 39 || e.which == 32) { switchSlideShow(); }
+				if (e.which == 37) { switchSlideShow(true); } // Key Left
+				else if (e.which == 39 || e.which == 32) { switchSlideShow(); } // Space and Key Right
 				else if (e.which == 38) { toggleHighlight(false); e.preventDefault(); } // Key Up
-				else if (e.which == 40) { toggleHighlight(true); e.preventDefault(); }
-				else if (e.which == 27 || e.which == 17 && target.slideshowActive) { quitSlideShow(); }
-				else if (e.which == 17 && !target.slideshowActive) { setupSlideShow($('.image').eq(target.slideshowPosition)); };
+				else if (e.which == 40) { toggleHighlight(true); e.preventDefault(); } // Key Down
+				else if (target.slideshowActive) {
+					if (e.which == 27 || e.which == 17 || e.which == 18) { quitSlideShow(); }; // Escape or CTRL or ALT when the slideshow is active
+				} else if (!target.slideshowActive) {
+					if (e.which == 17 || e.which == 18) { setupSlideShow($('.image').eq(target.slideshowPosition)); }; // CTRL or ALT when its inactive
+				};
+				
 			});
 
 			// Image Preloading
 			$(['x.png','xl.png']).preload();
 
+			// When the user returns to the tab, the input field is immediately selected
 			$(window).on('focus', function() {
 				if (!target.slideshowActive) {
 					$('#subreddit-input').focus().select();

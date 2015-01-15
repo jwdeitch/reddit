@@ -272,6 +272,11 @@ body.hugeimages #results .image {
   opacity: 1 !important;
 }
 
+#results .panel-help span {
+  position: absolute;
+  right: 70px;
+}
+
 #results .image:after {
 	content: "";
 	position: absolute;
