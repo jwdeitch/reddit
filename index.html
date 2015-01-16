@@ -7,6 +7,7 @@
 		<script>
 
 		var target = {
+			rawinput : '',
 			subreddit : '',
 			url : '',
 			sort : '',
@@ -25,7 +26,6 @@
 		};
 
 		var settings = {
-			enableSlideshow : true,
 			renderHtml5 : true,
 			showNSFW : true,
 			autoplayHTML5 : true,
@@ -33,8 +33,6 @@
 			suggestReddits : true,
 			hugeImages : false,
 			allowOtherSources : true,
-			lazyLoading : false,
-			lazyLoadingString : '',
 			nightMode : false
 		};
 
@@ -46,9 +44,9 @@
 			cantSaveOptions : false
 		};
 
-		// Obf. Recommendations
-		var _0xd2e7=["\x61\x77\x77","\x50\x69\x63\x73","\x43\x61\x74\x73","\x61\x77\x77\x64\x75\x63\x61\x74\x69\x6F\x6E\x61\x6C","\x45\x61\x72\x74\x68\x50\x6F\x72\x6E","\x66\x75\x6E\x6E\x79","\x41\x64\x76\x69\x63\x65\x41\x6E\x69\x6D\x61\x6C\x73","\x67\x69\x66\x73","\x44\x61\x74\x61\x49\x73\x42\x65\x61\x75\x74\x69\x66\x75\x6C","\x41\x72\x74","\x4F\x6C\x64\x53\x63\x68\x6F\x6F\x6C\x43\x6F\x6F\x6C","\x57\x61\x6C\x6C\x70\x61\x70\x65\x72\x73","\x57\x6F\x61\x68\x44\x75\x64\x65","\x72\x65\x61\x63\x74\x69\x6F\x6E\x67\x69\x66\x73","\x41\x62\x61\x6E\x64\x6F\x6E\x65\x64\x50\x6F\x72\x6E","\x67\x61\x6D\x69\x6E\x67","\x66\x6F\x6F\x64","\x70\x65\x72\x66\x65\x63\x74\x74\x69\x6D\x69\x6E\x67","\x6D\x69\x6E\x69\x6D\x61\x6C\x69\x73\x6D","\x4F\x66\x66\x65\x6E\x73\x69\x76\x65\x5F\x57\x61\x6C\x6C\x70\x61\x70\x65\x72\x73","\x62\x6C\x75\x65","\x42\x69\x72\x64\x73\x57\x69\x74\x68\x41\x72\x6D\x73","\x46\x6F\x6F\x64\x50\x6F\x72\x6E","\x75\x6E\x65\x78\x70\x65\x63\x74\x65\x64"];var recommendationsSfw=[_0xd2e7[0],_0xd2e7[1],_0xd2e7[2],_0xd2e7[3],_0xd2e7[4],_0xd2e7[5],_0xd2e7[6],_0xd2e7[7],_0xd2e7[8],_0xd2e7[9],_0xd2e7[10],_0xd2e7[11],_0xd2e7[12],_0xd2e7[13],_0xd2e7[14],_0xd2e7[15],_0xd2e7[16],_0xd2e7[17],_0xd2e7[18],_0xd2e7[19],_0xd2e7[20],_0xd2e7[21],_0xd2e7[22],_0xd2e7[23]];
-		var _0x79a4=["\x4E\x53\x46\x57","\x42\x75\x73\x74\x79\x50\x65\x74\x69\x74\x65","\x4E\x53\x46\x57\x5F\x47\x69\x66","\x4F\x69\x6C\x70\x6F\x72\x6E","\x63\x66\x6E\x6D","\x58\x73\x6F\x6D\x65","\x50\x72\x65\x74\x74\x79\x47\x69\x72\x6C\x73","\x54\x69\x74\x74\x69\x65\x73","\x53\x65\x78\x79\x47\x69\x72\x6C\x73","\x62\x6F\x6E\x65\x72\x6D\x61\x74\x65\x72\x69\x61\x6C","\x67\x65\x6E\x74\x6C\x65\x6D\x61\x6E\x62\x6F\x6E\x65\x72\x73","\x42\x6F\x6F\x62\x69\x65\x73","\x41\x73\x73","\x41\x6E\x61\x6C","\x43\x75\x6D\x73\x6C\x75\x74\x73","\x4E\x53\x46\x57\x48\x61\x72\x64\x63\x6F\x72\x65","\x4D\x49\x4C\x46","\x42\x6C\x6F\x77\x6A\x6F\x62\x73","\x47\x69\x72\x6C\x73\x69\x6E\x59\x6F\x67\x61\x70\x61\x6E\x74\x73","\x68\x6F\x6C\x64\x74\x68\x65\x6D\x6F\x61\x6E","\x62\x75\x72\x73\x74\x69\x6E\x67\x6F\x75\x74","\x50\x65\x72\x6B\x79","\x36\x30\x66\x70\x73\x70\x6F\x72\x6E","\x4F\x5F\x46\x61\x63\x65\x73","\x4C\x65\x67\x61\x6C\x54\x65\x65\x6E\x73","\x63\x65\x6C\x65\x62\x6E\x73\x66\x77","\x64\x61\x74\x67\x61\x70","\x53\x65\x78\x79\x42\x75\x74\x4E\x6F\x74\x50\x6F\x72\x6E"];var recommendationsNsfw=[_0x79a4[0],_0x79a4[1],_0x79a4[2],_0x79a4[3],_0x79a4[4],_0x79a4[5],_0x79a4[6],_0x79a4[7],_0x79a4[8],_0x79a4[9],_0x79a4[10],_0x79a4[11],_0x79a4[12],_0x79a4[13],_0x79a4[14],_0x79a4[15],_0x79a4[16],_0x79a4[17],_0x79a4[18],_0x79a4[19],_0x79a4[20],_0x79a4[21],_0x79a4[22],_0x79a4[23],_0x79a4[24],_0x79a4[25],_0x79a4[26],_0x79a4[27]];
+		// Spooky Recommendations
+		var recommendationsSfw=["\x61\x77\x77","\x50\x69\x63\x73","\x43\x61\x74\x73","\x61\x77\x77\x64\x75\x63\x61\x74\x69\x6F\x6E\x61\x6C","\x45\x61\x72\x74\x68\x50\x6F\x72\x6E","\x66\x75\x6E\x6E\x79","\x41\x64\x76\x69\x63\x65\x41\x6E\x69\x6D\x61\x6C\x73","\x67\x69\x66\x73","\x44\x61\x74\x61\x49\x73\x42\x65\x61\x75\x74\x69\x66\x75\x6C","\x41\x72\x74","\x4F\x6C\x64\x53\x63\x68\x6F\x6F\x6C\x43\x6F\x6F\x6C","\x57\x61\x6C\x6C\x70\x61\x70\x65\x72\x73","\x57\x6F\x61\x68\x44\x75\x64\x65","\x72\x65\x61\x63\x74\x69\x6F\x6E\x67\x69\x66\x73","\x41\x62\x61\x6E\x64\x6F\x6E\x65\x64\x50\x6F\x72\x6E","\x67\x61\x6D\x69\x6E\x67","\x66\x6F\x6F\x64","\x70\x65\x72\x66\x65\x63\x74\x74\x69\x6D\x69\x6E\x67","\x6D\x69\x6E\x69\x6D\x61\x6C\x69\x73\x6D","\x4F\x66\x66\x65\x6E\x73\x69\x76\x65\x5F\x57\x61\x6C\x6C\x70\x61\x70\x65\x72\x73","\x62\x6C\x75\x65","\x42\x69\x72\x64\x73\x57\x69\x74\x68\x41\x72\x6D\x73","\x46\x6F\x6F\x64\x50\x6F\x72\x6E","\x75\x6E\x65\x78\x70\x65\x63\x74\x65\x64"];
+		var recommendationsNsfw=["\x4E\x53\x46\x57","\x42\x75\x73\x74\x79\x50\x65\x74\x69\x74\x65","\x4E\x53\x46\x57\x5F\x47\x69\x66","\x4F\x69\x6C\x70\x6F\x72\x6E","\x63\x66\x6E\x6D","\x58\x73\x6F\x6D\x65","\x50\x72\x65\x74\x74\x79\x47\x69\x72\x6C\x73","\x54\x69\x74\x74\x69\x65\x73","\x53\x65\x78\x79\x47\x69\x72\x6C\x73","\x62\x6F\x6E\x65\x72\x6D\x61\x74\x65\x72\x69\x61\x6C","\x67\x65\x6E\x74\x6C\x65\x6D\x61\x6E\x62\x6F\x6E\x65\x72\x73","\x42\x6F\x6F\x62\x69\x65\x73","\x41\x73\x73","\x41\x6E\x61\x6C","\x43\x75\x6D\x73\x6C\x75\x74\x73","\x4E\x53\x46\x57\x48\x61\x72\x64\x63\x6F\x72\x65","\x4D\x49\x4C\x46","\x42\x6C\x6F\x77\x6A\x6F\x62\x73","\x47\x69\x72\x6C\x73\x69\x6E\x59\x6F\x67\x61\x70\x61\x6E\x74\x73","\x68\x6F\x6C\x64\x74\x68\x65\x6D\x6F\x61\x6E","\x62\x75\x72\x73\x74\x69\x6E\x67\x6F\x75\x74","\x50\x65\x72\x6B\x79","\x36\x30\x66\x70\x73\x70\x6F\x72\x6E","\x4F\x5F\x46\x61\x63\x65\x73","\x4C\x65\x67\x61\x6C\x54\x65\x65\x6E\x73","\x63\x65\x6C\x65\x62\x6E\x73\x66\x77","\x64\x61\x74\x67\x61\x70","\x53\x65\x78\x79\x42\x75\x74\x4E\x6F\x74\x50\x6F\x72\x6E"];
 
 		var favorites = [];
 
@@ -76,8 +74,10 @@
 			// Gather target Subreddit
 			if (!subredditOverwrite) {
 				target.subreddit = $('#subreddit-input').val().trim();
+				target.rawinput = $('#subreddit-input').val().trim();
 			} else {
 				target.subreddit = subredditOverwrite;
+				target.rawinput = subredditOverwrite;
 				$('#subreddit-input').val(subredditOverwrite);
 			};
 
@@ -100,7 +100,7 @@
 
 				for (var i = favorites.length - 1; i >= 0; i--) {
 					if (i == 6) break;
-					$('<div/>', { class : 'panel-suggestion panel-favorite', onclick : "fetchJson('" + favorites[i][0] + "')" }).html('<span style="color: ' + getRandomColor() + '; opacity: 0.5;">/r/</span>' + favorites[i][0]).appendTo('#results');
+					$('<div/>', { class : 'panel-suggestion panel-favorite', onclick : "fetchJson('" + favorites[i][0] + "')" }).html('<span style="color: ' + getRandomColor() + ';" class="prefixspan">/r/</span>' + favorites[i][0]).appendTo('#results');
 					panelsToDraw--;
 				};
 
@@ -123,7 +123,7 @@
 
 			//Check if "Options" is used, if so, cancel everything, display the Options module and set up the listeners
 			if (target.subreddit.toLowerCase() == "options") {
-				$('#results').html(' ').append('<div class="panel panel-options"><h1>Options</h1><br><br><h2>General</h2><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-1"><h6>Enable Slideshow</h6></div><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-3"><h6>Show NSFW Content</h6></div><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-4"><h6>Huge Images</h6></div><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-6"><h6>Suggest Subreddits</h6></div><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-9"><h6>Night Mode</h6></div><h2>Performance</h2><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-2"><h6>Render HTML5 Video</h6></div><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-5"><h6>Smooth Labels</h6></div><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-7"><h6>Allow all Sources</h6></div><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-8"><h6>Use Lazy Loading</h6></div></div>');
+				$('#results').html(' ').append('<div class="panel panel-options"><h1>Options</h1><br><br><h2>General</h2><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-3"><h6>Show NSFW Content</h6></div><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-4"><h6>Huge Images</h6></div><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-6"><h6>Suggest Subreddits</h6></div><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-9"><h6>Night Mode</h6></div><h2>Performance</h2><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-2"><h6>Render HTML5 Video</h6></div><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-5"><h6>Smooth Labels</h6></div><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-7"><h6>Allow all Sources</h6></div><div class="options-box"><input type="checkbox" class="uiswitch" disabled="" id="optionbox-8"><h6>Use Lazy Loading</h6></div></div>');
 
 				if (system.cantSaveOptions) {
 					$('.panel-options').append("<br><br>We're sorry, but we can't permanently save your settings. Usually this is caused by surfing in Private Mode.<br><br>");
@@ -132,24 +132,20 @@
 				document.title = "Options - Reddit Crawler";
 				target.specialMode = true;
 
-				if (settings.enableSlideshow) { $('#optionbox-1').prop('checked', true); };
 				if (settings.renderHtml5) { $('#optionbox-2').prop('checked', true); };
 				if (settings.showNSFW) { $('#optionbox-3').prop('checked', true); };
 				if (settings.hugeImages) { $('#optionbox-4').prop('checked', true); };
 				if (settings.fadeLabels) { $('#optionbox-5').prop('checked', true); };
 				if (settings.suggestReddits) { $('#optionbox-6').prop('checked', true); };
 				if (settings.allowOtherSources) { $('#optionbox-7').prop('checked', true); };
-				if (settings.lazyLoading) { $('#optionbox-8').prop('checked', true); };
 				if (settings.nightMode) { $('#optionbox-9').prop('checked', true); };
 
-				$('#optionbox-1').change(function() { settings.enableSlideshow = $(this).prop('checked'); });
 				$('#optionbox-2').change(function() { settings.renderHtml5 = $(this).prop('checked'); });
 				$('#optionbox-3').change(function() { settings.showNSFW = $(this).prop('checked'); });
 				$('#optionbox-4').change(function() { settings.hugeImages = $(this).prop('checked'); evaluateSettings(); });
 				$('#optionbox-5').change(function() { settings.fadeLabels = $(this).prop('checked'); evaluateSettings(); });
 				$('#optionbox-6').change(function() { settings.suggestReddits = $(this).prop('checked'); });
 				$('#optionbox-7').change(function() { settings.allowOtherSources = $(this).prop('checked'); });
-				$('#optionbox-8').change(function() { settings.lazyLoading = $(this).prop('checked'); evaluateSettings(); });
 				$('#optionbox-9').change(function() { settings.nightMode = $(this).prop('checked'); evaluateSettings(); });
 
 				system.usedSettings = true;
@@ -189,7 +185,7 @@
 			target.counter = -1;
 
 			// Display "Loading" Dialogue
-			$('#results').html(' ').append('<div id="loader">Loading <span style="color: ' + getRandomColor() + '; opacity: 0.5;">/r/</span>' + target.subreddit + '<br><br>' + target.mode + '</div>');
+			$('#results').html(' ').append('<div id="loader">Loading <span style="color: ' + getRandomColor() + '" class="prefixspan">/r/</span>' + target.subreddit + '<br><br>' + target.mode + '</div>');
 
 			// Start the AJAX Request
 			target.JSON = $.ajax({
@@ -310,31 +306,31 @@
 
 					// Current Subreddit Info Card
 					if (target.mode != 'top - ever') {
-						$('<div/>', { class : 'panel-suggestion', onclick : "fetchJson('" + target.subreddit + " 1')" }).html('Switch to <br><span style="color: ' + getRandomColor() + '; opacity: 0.5;">/r/</span>' + target.subreddit + '<br>top - ever').appendTo('#results');
+						$('<div/>', { class : 'panel-suggestion', onclick : "fetchJson('" + target.subreddit + " 1')" }).html('Switch to <br><span style="color: ' + getRandomColor() + ';" class="prefixspan">/r/</span>' + target.subreddit + '<br>top - ever').appendTo('#results');
 					} else {
-						$('<div/>', { class : 'panel-suggestion', onclick : "fetchJson('" + target.subreddit + " 4')" }).html('Switch to <br><span style="color: ' + getRandomColor() + '; opacity: 0.5;">/r/</span>' + target.subreddit + '<br>top - month').appendTo('#results');
+						$('<div/>', { class : 'panel-suggestion', onclick : "fetchJson('" + target.subreddit + " 4')" }).html('Switch to <br><span style="color: ' + getRandomColor() + ';" class="prefixspan">/r/</span>' + target.subreddit + '<br>top - month').appendTo('#results');
 					}
 
 
 
 					// Suggest Mentioned Subreddits - "Mentioned here"
 					for (var i = target.xpostMentions.length - 1; i >= 0; i--) {
-						$('<div/>', { class : 'panel-suggestion', onclick : "fetchJson('" + target.xpostMentions[i] + "')" }).html('Mentioned here<br><span style="color: ' + getRandomColor() + '; opacity: 0.5;">/r/</span>' + target.xpostMentions[i]).appendTo('#results');
+						$('<div/>', { class : 'panel-suggestion', onclick : "fetchJson('" + target.xpostMentions[i] + "')" }).html('Mentioned here<br><span style="color: ' + getRandomColor() + ';" class="prefixspan">/r/</span>' + target.xpostMentions[i]).appendTo('#results');
 					};
 
 
 					// Suggest Popular Subreddits - "Recommended"
 					if (settings.showNSFW && target.isNSFW) {
-						for (var i = 1; i >= 0; i--) {
+						for (var i = getRandomInt(1,2); i >= 0; i--) {
 							var randomRecommendation = recommendationsNsfw[Math.floor(Math.random() * recommendationsNsfw.length)];
 
-							$('<div/>', { class : 'panel-suggestion', onclick : "fetchJson('" + randomRecommendation + "')" }).html('Recommended<br><span style="color: ' + getRandomColor() + '; opacity: 0.5;">/r/</span>' + randomRecommendation).appendTo('#results');
+							$('<div/>', { class : 'panel-suggestion', onclick : "fetchJson('" + randomRecommendation + "')" }).html('Recommended<br><span style="color: ' + getRandomColor() + ';" class="prefixspan">/r/</span>' + randomRecommendation).appendTo('#results');
 						};
 					} else {
-						for (var i = 1; i >= 0; i--) {
+						for (var i = getRandomInt(1,2); i >= 0; i--) {
 							var randomRecommendation = recommendationsSfw[Math.floor(Math.random() * recommendationsSfw.length)];
 
-							$('<div/>', { class : 'panel-suggestion', onclick : "fetchJson('" + randomRecommendation + "')" }).html('Recommended<br><span style="color: ' + getRandomColor() + '; opacity: 0.5;">/r/</span>' + randomRecommendation).appendTo('#results');
+							$('<div/>', { class : 'panel-suggestion', onclick : "fetchJson('" + randomRecommendation + "')" }).html('Recommended<br><span style="color: ' + getRandomColor() + ';" class="prefixspan">/r/</span>' + randomRecommendation).appendTo('#results');
 						};
 					};
 
@@ -353,15 +349,13 @@
 									};
 								};		
 								for (var i = relatedRedditNames.length - 1; i >= 0; i--) {
-									$('<div/>', { class : 'panel-suggestion', onclick : "fetchJson('" + relatedRedditNames[i] + "')" }).html('Also try<br><span style="color: ' + getRandomColor() + '; opacity: 0.5;">/r/</span>' + relatedRedditNames[i]).appendTo('#results');
+									$('<div/>', { class : 'panel-suggestion', onclick : "fetchJson('" + relatedRedditNames[i] + "')" }).html('Also try<br><span style="color: ' + getRandomColor() + ';" class="prefixspan">/r/</span>' + relatedRedditNames[i]).appendTo('#results');
 								};
 							}
 						);
 					};
 
-					if (settings.enableSlideshow) {
-						$('.image').bind('click', function(){ setupSlideShow(this); });
-					};
+					$('.image').bind('click', function(){ setupSlideShow(this); });
 				},
 
 				error : function (x, status, error) {
@@ -393,7 +387,7 @@
 		}
 
 		function getRandomColor() {
-    		return "hsla(" + getRandomInt(0, 360) + ", 60%, 50%, 1)";
+    		return "hsla(" + getRandomInt(80, 300) + ", 60%, 50%, 1)";
 		}
 
 		function getRandomInt(min, max) {
@@ -416,8 +410,6 @@
 			if (settings.nightMode) { $('body').addClass('nightmode');} 
 			else { $('body').removeClass('nightmode'); };
 
-			if (settings.lazyLoading) { settings.lazyLoadingString = "src='null.gif' data-";} 
-			else { settings.lazyLoadingString = ""; };
 		}
 
 		function setupSlideShow(position) {
@@ -482,6 +474,9 @@
 				if (!target.highlightingActive) {
 					target.highlightingActive = true;
 					$('#subreddit-input').blur();
+					if ($('#subreddit-input').val() != target.rawinput) {
+						$('#subreddit-input').val(target.rawinput);
+					};
 					$('#results .image').eq(target.slideshowPosition).addClass('focus');
 					$(window).scrollTop(($('.image').eq(target.slideshowPosition).offset().top - 110));
 				};
@@ -600,7 +595,7 @@
 
 				for (var i = favorites.length - 1; i >= 0; i--) {
 					if (i == 6) break;
-					$('<div/>', { class : 'panel-suggestion panel-favorite', onclick : "fetchJson('" + favorites[i][0] + "')" }).html('<span style="color: ' + getRandomColor() + '; opacity: 0.5;">/r/</span>' + favorites[i][0]).appendTo('#results');
+					$('<div/>', { class : 'panel-suggestion panel-favorite', onclick : "fetchJson('" + favorites[i][0] + "')" }).html('<span style="color: ' + getRandomColor() + ';" class="prefixspan">/r/</span>' + favorites[i][0]).appendTo('#results');
 					panelsToDraw--;
 				};
 
