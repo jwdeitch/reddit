@@ -28,6 +28,7 @@
 			enableSlideshow : true,
 			renderHtml5 : true,
 			showNSFW : true,
+			autoplayHTML5 : true,
 			fadeLabels : false,
 			suggestReddits : true,
 			hugeImages : false,
@@ -181,6 +182,9 @@
 			target.specialMode = false;
 			target.isNSFW = false;
 			target.slideshowLength = 0;
+
+			if (settings.autoplayHTML5) { var autoplayString = "autoplay='' "; }
+			else { var autoplayString = ""; };
 			
 			target.counter = -1;
 
@@ -228,9 +232,9 @@
 							if (imgurEnding[imgurEndingLength] == "gifv") {
 								// Imgur "GIFV" File
 								target.newElement = $('<div/>', {
-									class : 'image'
+									class : 'image image-html5'
 						    		//title: postTitle
-								}).html("<span class='helper'></span><video autoplay='' loop='' muted='' preload='' poster='http://i.imgur.com/" + imgurEnding[imgurEndingLength - 1].substr(4) + ".jpg'><source src='http://i.imgur.com/" + imgurEnding[imgurEndingLength - 1].substr(4) + ".webm' type='video/webm'><source src='http://i.imgur.com/" + imgurEnding[imgurEndingLength - 1].substr(4) + ".mp4' type='video/mp4'></video>").appendTo('#results');
+								}).html("<span class='helper'></span><video " + autoplayString + "loop='' muted='' preload='' poster='http://i.imgur.com/" + imgurEnding[imgurEndingLength - 1].substr(4) + ".jpg'><source src='http://i.imgur.com/" + imgurEnding[imgurEndingLength - 1].substr(4) + ".webm' type='video/webm'><source src='http://i.imgur.com/" + imgurEnding[imgurEndingLength - 1].substr(4) + ".mp4' type='video/mp4'></video>").appendTo('#results');
 								target.newElement.append('<span class="title">' + postTitle + '</span>');
 							} else {
 								// Classic Image File
@@ -275,8 +279,8 @@
 							gfycatUrl = gfycatUrl.replace("http://gfycat.com/", "").replace("https://gfycat.com/", "").replace("http://www.gfycat.com/", "").replace("https://www.gfycat.com/", "");
 
 							target.newElement = $('<div/>', {
-								class : 'image'
-							}).html("<span class='helper'></span><video class='gfycat' data-gfyid='" + gfycatUrl + "' autoplay='' loop='' muted='' preload='' poster='http://thumbs.gfycat.com/" + gfycatUrl + "-poster.jpg'></video><span class='title'>" + postTitle + "</span>").appendTo('#results');
+								class : 'image image-html5'
+							}).html("<span class='helper'></span><video class='gfycat' data-gfyid='" + gfycatUrl + "' loop='' " + autoplayString + "muted='' preload='' poster='http://thumbs.gfycat.com/" + gfycatUrl + "-poster.jpg'></video><span class='title'>" + postTitle + "</span>").appendTo('#results');
 						}
 
 						//Other JPG / PNG / GIF
@@ -435,6 +439,8 @@
 			// If neither the slideshow nor the highlighting is active, nothing happens
 			if (!target.slideshowActive && !target.highlightingActive) { return; };
 
+			var oldSlideshowPosition = target.slideshowPosition;
+
 			if (backwards) {
 				target.slideshowPosition--;
 				if (target.slideshowPosition == -1) { target.slideshowPosition = (target.slideshowLength - 1); };
@@ -442,6 +448,14 @@
 				target.slideshowPosition++;
 				if (target.slideshowPosition >= target.slideshowLength) { target.slideshowPosition = 0; };
 			};
+
+			/* Non-Autoplay HTML5 Check
+			if (!settings.autoplayHTML5) {
+				if ($('.image').eq(target.slideshowPosition).hasClass('image-html5')) {
+					$('.image').eq(target.slideshowPosition).children('video').get(0).play();
+					$('.image').eq(oldSlideshowPosition).children('video').get(0).pause();
+				};
+			};*/
 
 			if (!target.slideshowActive) {
 				// This is the blue highlighting mode

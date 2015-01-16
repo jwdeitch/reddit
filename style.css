@@ -306,15 +306,34 @@ body.nightmode #results .image:hover:after {
   background-color: rgba(34, 34, 34, 0.5);
 }
 
-#results .image.focus:before,
-#results .panel-suggestion.focus:before {
+#results .image:before, #results .panel-suggestion:before {
   content: '';
   position: absolute;
   top: 50px;
   right: 50px;
   bottom: 50px;
   left: 50px;
-  border: 40px dashed rgba(153, 213, 255, 0.3);
+  border: 40px dashed rgba(153, 213, 255, 0);
+
+  -webkit-transition: all 0.1s;
+  -moz-transition: all 0.1s;
+  -ms-transition: all 0.1s;
+  transition: all 0.1s;
+
+  -webkit-transform: scale(1.1);
+  -moz-transform: scale(1.1);
+  -ms-transform: scale(1.1);
+  transform: scale(1.1);
+}
+
+#results .image.focus:before,
+#results .panel-suggestion.focus:before {
+  border-color: rgba(153, 213, 255, 0.3);
+  
+  -webkit-transform: scale(1);
+  -moz-transform: scale(1);
+  -ms-transform: scale(1);
+  transform: scale(1);
 }
 
 body.nightmode #results .image.focus:before,
