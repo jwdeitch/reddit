@@ -360,6 +360,7 @@ body.smoothtransition #results .image .title {
 .image video {
 	width: 100%;
 	vertical-align: middle;
+  display: inline-block;
 }
 
 #results #loader {
