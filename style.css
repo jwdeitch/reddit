@@ -316,6 +316,15 @@ body.nightmode #results .image:hover:after {
   border: 40px dashed rgba(153, 213, 255, 0.3);
 }
 
+#results .image.focus.focus-nextpage:before {
+  content: 'Space to load next page';
+  text-shadow: 0px 1px 0 #000;
+  font-size: 24px;
+  font-weight: 100;
+  line-height: 300px;
+  color: #fff;
+}
+
 body.nightmode #results .image.focus:before,
 body.nightmode #results .panel-suggestion.focus:before {
   border-color: rgba(255, 255, 255, 0.5);

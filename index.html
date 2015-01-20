@@ -628,9 +628,14 @@
 				// This is the blue highlighting mode
 				if (target.highlightingActive) {
 					$('#subreddit-input').blur();
-					$('.focus').removeClass('focus');
-					$('#results .image').eq(target.slideshowPosition).addClass('focus');
+					$('.focus').removeClass('focus focus-nextpage');
 					$(window).scrollTop(($('.image').eq(target.slideshowPosition).offset().top - 110));
+
+					if (target.slideshowPosition == (target.slideshowLength - 1)) {
+						var classString = "focus focus-nextpage"
+					} else { var classString = "focus" };
+
+					$('#results .image').eq(target.slideshowPosition).addClass(classString);
 				};
 			} else {
 				$('#slideshow .image').remove();
@@ -674,9 +679,13 @@
 			$('#slideshow').removeClass('active');
 			$('#subreddit-input').blur();
 
-			$('.focus').removeClass('focus');
-			$('#results .image').eq(target.slideshowPosition).addClass('focus');
+			$('.focus').removeClass('focus focus-nextpage');
 
+			if (target.slideshowPosition == (target.slideshowLength - 1)) {
+				var classString = "focus focus-nextpage"
+			} else { var classString = "focus" };
+
+			$('#results .image').eq(target.slideshowPosition).addClass(classString);
 			$(window).scrollTop(($('.image').eq(target.slideshowPosition).offset().top - 110));
 		}
 
