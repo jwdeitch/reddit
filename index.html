@@ -54,6 +54,8 @@
 
 		var favorites = [];
 
+		var autoplayString = "autoplay='' ";
+
 
 		function extendPage(invokeCallback) {
 			target.page++;
@@ -66,7 +68,7 @@
 
 			target.tempUrl = target.url + target.pageModifier + "&after=" + target.lastUrl;
 			
-			// Remove all of the .panel elements for now
+			// Remove all of the .panel elements
 			$('.panel, .panel-suggestion').remove();
 
 			// Start the AJAX Request
@@ -93,69 +95,60 @@
 							};
 						}
 
+						target.newElement = 'null';
+
 						//Imgur Handling
 						if (target.JSON.responseJSON.data.children[i].data.domain == "i.imgur.com" || target.JSON.responseJSON.data.children[i].data.domain == "imgur.com") {
-							target.counter++;
+							
 							var imgurEnding = target.JSON.responseJSON.data.children[i].data.url.split(".");
 							var imgurEndingLength = imgurEnding.length - 1;
 							if (imgurEnding[imgurEndingLength] == "gifv") {
 								// Imgur "GIFV" File
-								target.newElement = $('<div/>', {
-									class : 'image image-html5'
-						    		//title: postTitle
-								}).html("<span class='helper'></span><video " + autoplayString + "loop='' muted='' preload='' poster='http://i.imgur.com/" + imgurEnding[imgurEndingLength - 1].substr(4) + ".jpg'><source src='http://i.imgur.com/" + imgurEnding[imgurEndingLength - 1].substr(4) + ".webm' type='video/webm'><source src='http://i.imgur.com/" + imgurEnding[imgurEndingLength - 1].substr(4) + ".mp4' type='video/mp4'></video>").appendTo('#results');
-								target.newElement.append('<span class="title">' + postTitle + '</span>');
+								target.counter++;
+								target.newElement = $('<div/>', { class : 'image image-html5' }).html("<span class='helper'></span><video " + autoplayString + "loop='' muted='' preload='' poster='http://i.imgur.com/" + imgurEnding[imgurEndingLength - 1].substr(4) + ".jpg'><source src='http://i.imgur.com/" + imgurEnding[imgurEndingLength - 1].substr(4) + ".webm' type='video/webm'><source src='http://i.imgur.com/" + imgurEnding[imgurEndingLength - 1].substr(4) + ".mp4' type='video/mp4'></video><span class='title'>" + postTitle + "</span>").appendTo('#results');
 							} else {
 								// Classic Image File
 
 								var imgurCode = target.JSON.responseJSON.data.children[i].data.url.replace("http://i.imgur.com/", "").replace("https://i.imgur.com/", "").replace("http://imgur.com/", "").replace("https://imgur.com/", "").replace("http://www.imgur.com/", "").replace("https://www.imgur.com/", "");
 
 								if (imgurCode.substr(0,2) == "a/") {
-									target.counter--;
 								} else if (imgurCode.substr(0,8) == "gallery/") {
-									target.counter--;
 								} else {
-									// Check if it hotlinks the image
+
 									if (imgurCode.split(".").length == 1) {
-										// Use .jpg as a universal ending (browser displays any image anyway)
 										imgurCode += ".jpg";
 									};
 
-									target.newElement = $('<div/>', {
-										class : 'image',
-										style : "background-image: url(http://i.imgur.com/" + imgurCode + ")"
-									}).html('<span class="title">' + postTitle + '</span>').appendTo('#results');
+									target.counter++;
+									target.newElement = $('<div/>', { class : 'image', style : "background-image: url(http://i.imgur.com/" + imgurCode + ")" }).html('<span class="title">' + postTitle + '</span>').appendTo('#results');
 								}
 							}
 						}
 
 						//Gfycat Handling
 						else if (target.JSON.responseJSON.data.children[i].data.domain == "gfycat.com" && settings.renderHtml5 == true) {
-							target.counter++;
+							
 							var gfycatUrl = target.JSON.responseJSON.data.children[i].data.url;
 							gfycatUrl = gfycatUrl.replace("http://gfycat.com/", "").replace("https://gfycat.com/", "").replace("http://www.gfycat.com/", "").replace("https://www.gfycat.com/", "");
 
-							target.newElement = $('<div/>', {
-								class : 'image image-html5'
-							}).html("<span class='helper'></span><video class='gfycat' data-gfyid='" + gfycatUrl + "' loop='' " + autoplayString + "muted='' preload='' poster='http://thumbs.gfycat.com/" + gfycatUrl + "-poster.jpg'></video><span class='title'>" + postTitle + "</span>").appendTo('#results');
+							target.counter++;
+							target.newElement = $('<div/>', { class : 'image image-html5' }).html("<span class='helper'></span><video class='gfycat' data-gfyid='" + gfycatUrl + "' loop='' " + autoplayString + "muted='' preload='' poster='http://thumbs.gfycat.com/" + gfycatUrl + "-poster.jpg'></video><span class='title'>" + postTitle + "</span>").appendTo('#results');
 						}
 
 						//Other JPG / PNG / GIF
 						else if (settings.allowOtherSources == true) {
-							target.counter++;
 
 							var otherUrlBase = target.JSON.responseJSON.data.children[i].data.url;
 							var otherUrlEnding = otherUrlBase.substr(otherUrlBase.length - 3).toLowerCase();
 
 							if (otherUrlEnding == "jpg" || otherUrlEnding == "png" || otherUrlEnding == "gif") {
-								target.newElement = $('<div/>', {
-								class : 'image',
-								style : "background-image: url(" + target.JSON.responseJSON.data.children[i].data.url + ")"
-								}).html('<span class="title">' + postTitle + '</span>').appendTo('#results');
-							} else { target.counter--; };
+								target.counter++;
+								target.newElement = $('<div/>', { class : 'image', style : "background-image: url(" + target.JSON.responseJSON.data.children[i].data.url + ")" }).html('<span class="title">' + postTitle + '</span>').appendTo('#results');
+							};
 						};
 
 						$(target.newElement).attr('data-id', target.counter);
+						console.log(target.counter + " - " + target.newElement);
 					};
 
 					// Setup GFYs
@@ -356,9 +349,6 @@
 			target.isNSFW = false;
 			target.slideshowLength = 0;
 			target.page = 0;
-
-			if (settings.autoplayHTML5) { var autoplayString = "autoplay='' "; }
-			else { var autoplayString = ""; };
 			
 			target.counter = -1;
 
@@ -400,78 +390,56 @@
 							};
 						}
 
+						target.newElement = 'null';
+
 						//Imgur Handling
 						if (target.JSON.responseJSON.data.children[i].data.domain == "i.imgur.com" || target.JSON.responseJSON.data.children[i].data.domain == "imgur.com") {
-							target.counter++;
+							
 							var imgurEnding = target.JSON.responseJSON.data.children[i].data.url.split(".");
 							var imgurEndingLength = imgurEnding.length - 1;
+
 							if (imgurEnding[imgurEndingLength] == "gifv") {
-								// Imgur "GIFV" File
-								target.newElement = $('<div/>', {
-									class : 'image image-html5'
-						    		//title: postTitle
-								}).html("<span class='helper'></span><video " + autoplayString + "loop='' muted='' preload='' poster='http://i.imgur.com/" + imgurEnding[imgurEndingLength - 1].substr(4) + ".jpg'><source src='http://i.imgur.com/" + imgurEnding[imgurEndingLength - 1].substr(4) + ".webm' type='video/webm'><source src='http://i.imgur.com/" + imgurEnding[imgurEndingLength - 1].substr(4) + ".mp4' type='video/mp4'></video>").appendTo('#results');
-								target.newElement.append('<span class="title">' + postTitle + '</span>');
+								target.counter++;
+								target.newElement = $('<div/>', { class : 'image image-html5' }).html("<span class='helper'></span><video " + autoplayString + "loop='' muted='' preload='' poster='http://i.imgur.com/" + imgurEnding[imgurEndingLength - 1].substr(4) + ".jpg'><source src='http://i.imgur.com/" + imgurEnding[imgurEndingLength - 1].substr(4) + ".webm' type='video/webm'><source src='http://i.imgur.com/" + imgurEnding[imgurEndingLength - 1].substr(4) + ".mp4' type='video/mp4'></video><span class='title'>" + postTitle + "</span>").appendTo('#results');
 							} else {
 								// Classic Image File
 
 								var imgurCode = target.JSON.responseJSON.data.children[i].data.url.replace("http://i.imgur.com/", "").replace("https://i.imgur.com/", "").replace("http://imgur.com/", "").replace("https://imgur.com/", "").replace("http://www.imgur.com/", "").replace("https://www.imgur.com/", "");
 
 								if (imgurCode.substr(0,2) == "a/") {
-									
-									target.counter--;
-									/* Is Album. Start API Request for the first image.
-									var albumTargetUrl = "https://api.imgur.com/3/album/" + imgurCode.slice(2) + "/images";
-
-									var albumJSON = $.getJSON(target.url, function(){
-										var albumTargetUrl = albumJSON.responseJSON.data[0].link;
-										target.newElement = $('<div/>', {
-											class : 'image',
-											style : "background-image: url(" + albumTargetUrl + ")"
-										}).html('<span class="title">' + postTitle + '</span>').appendTo('#results');
-									});*/
 								} else if (imgurCode.substr(0,8) == "gallery/") {
-									// Is Gallery.
-									target.counter--;
 								} else {
 									// Check if it hotlinks the image
 									if (imgurCode.split(".").length == 1) {
 										// Use .jpg as a universal ending (browser displays any image anyway)
 										imgurCode += ".jpg";
 									};
-
-									target.newElement = $('<div/>', {
-										class : 'image',
-										style : "background-image: url(http://i.imgur.com/" + imgurCode + ")"
-									}).html('<span class="title">' + postTitle + '</span>').appendTo('#results');
+									target.counter++;
+									target.newElement = $('<div/>', { class : 'image', style : "background-image: url(http://i.imgur.com/" + imgurCode + ")" }).html('<span class="title">' + postTitle + '</span>').appendTo('#results');
 								}
 							}
 						}
 
 						//Gfycat Handling
 						else if (target.JSON.responseJSON.data.children[i].data.domain == "gfycat.com" && settings.renderHtml5 == true) {
-							target.counter++;
 							var gfycatUrl = target.JSON.responseJSON.data.children[i].data.url;
 							gfycatUrl = gfycatUrl.replace("http://gfycat.com/", "").replace("https://gfycat.com/", "").replace("http://www.gfycat.com/", "").replace("https://www.gfycat.com/", "");
 
-							target.newElement = $('<div/>', {
-								class : 'image image-html5'
-							}).html("<span class='helper'></span><video class='gfycat' data-gfyid='" + gfycatUrl + "' loop='' " + autoplayString + "muted='' preload='' poster='http://thumbs.gfycat.com/" + gfycatUrl + "-poster.jpg'></video><span class='title'>" + postTitle + "</span>").appendTo('#results');
+							target.counter++;
+							target.newElement = $('<div/>', { class : 'image image-html5' }).html("<span class='helper'></span><video class='gfycat' data-gfyid='" + gfycatUrl + "' loop='' " + autoplayString + "muted='' preload='' poster='http://thumbs.gfycat.com/" + gfycatUrl + "-poster.jpg'></video><span class='title'>" + postTitle + "</span>").appendTo('#results');
 						}
 
 						//Other JPG / PNG / GIF
 						else if (settings.allowOtherSources == true) {
-							target.counter++;
 
 							var otherUrlBase = target.JSON.responseJSON.data.children[i].data.url;
 							var otherUrlEnding = otherUrlBase.substr(otherUrlBase.length - 3).toLowerCase();
 
+							
 							if (otherUrlEnding == "jpg" || otherUrlEnding == "png" || otherUrlEnding == "gif") {
-								target.newElement = $('<div/>', {
-								class : 'image',
-								style : "background-image: url(" + target.JSON.responseJSON.data.children[i].data.url + ")"
-								}).html('<span class="title">' + postTitle + '</span>').appendTo('#results');
-							} else { target.counter--; };
+								target.counter++;
+								target.newElement = $('<div/>', { class : 'image', style : "background-image: url(" + target.JSON.responseJSON.data.children[i].data.url + ")" }).html('<span class="title">' + postTitle + '</span>').appendTo('#results');
+							};
 						};
 
 						$(target.newElement).attr('data-id', target.counter);
@@ -608,6 +576,8 @@
 			$('#results, #wrapper').addClass('hidden');
 
 			// Note: $(something).eq(0) is the jQuery equivalent to something[0]
+			// Note2: $('something[data-id="x"]') does what it does 
+			// $('#results .image[data-id="' + target.slideshowPosition + '"]')
 		}
 
 		function switchSlideShow(backwards) {
