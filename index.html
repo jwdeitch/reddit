@@ -18,6 +18,7 @@
 			lastUrl : '',
 			JSON : '',
 			xpostMentions : [],
+			albums : {},
 			isNSFW : false,
 			slideshowLength : 0,
 			slideshowPosition : "0",
@@ -142,6 +143,7 @@
 
 					// Setup GFYs
 					setupGfy();
+					setupAlbum();
 
 					// Refresh Slideshow Length
 					target.slideshowLength = $('.image').length;
@@ -338,6 +340,7 @@
 			target.isNSFW = false;
 			target.slideshowLength = 0;
 			target.page = 0;
+			for (var member in target.albums) delete target.albums[member];
 			
 			target.counter = -1;
 
@@ -397,6 +400,7 @@
 								var imgurCode = target.JSON.responseJSON.data.children[i].data.url.replace("http://i.imgur.com/", "").replace("https://i.imgur.com/", "").replace("http://imgur.com/", "").replace("https://imgur.com/", "").replace("http://www.imgur.com/", "").replace("https://www.imgur.com/", "");
 
 								if (imgurCode.substr(0,2) == "a/") {
+									appendImage(postTitle, "", "", imgurCode.slice(2));
 								} else if (imgurCode.substr(0,8) == "gallery/") {
 								} else {
 									// Check if it hotlinks the image
@@ -438,6 +442,7 @@
 
 					// Setup GFYs
 					setupGfy();
+					setupAlbum();
 
 					// Setup Slideshow Position
 					target.slideshowPosition = $('.image').eq(0).attr('data-id');
@@ -518,14 +523,14 @@
 					success : function(){
 						var instGfyWebm = instGfyJson.responseJSON.gfyItem.webmUrl;
 						var instGfyMp4 = instGfyJson.responseJSON.gfyItem.mp4Url;
-						instGfyElement.append("<source src='" + instGfyWebm + "' type='video/webm'><source src='" + instGfyMp4 + "' type='video/mp4'>");
+						instGfyElement.append("<source src='" + instGfyWebm + "' type='video/webm'><source src='" + instGfyMp4 + "' type='video/mp4'>").removeClass('gfycat');
 					}
 				});
 			});
 		}
 
-		function appendImage(imageTitle, imageUrl, videoContent) {
-			if (videoContent) {
+		function appendImage(imageTitle, imageUrl, videoContent, albumID) {
+			if (videoContent && videoContent != "") {
 				var imageClass = "image-html5";
 				videoContent = "<span class='helper'></span>" + videoContent;
 			} else {
@@ -535,9 +540,47 @@
 
 			target.counter++;
 			var createdImage = $('<div/>', { class : 'image ' + imageClass, style : 'background-image : url(' + imageUrl + ')' }).html(videoContent + "<span class='title'>" + imageTitle  + "</span>").appendTo('#results');
+
+			if (albumID) {
+				createdImage.attr('data-albumid', albumID).addClass('image-album image-albumload');
+				//.click(function(){accessAlbum(this);})
+			};
+
 			createdImage.attr('data-id', target.counter);
-			//console.log("I added an Image! Number " + target.counter + "!");
 		}
+
+		function setupAlbum() {
+			$('.image-albumload').each(function(){
+				var instAlbumElement = $(this);
+				var instAlbumId = instAlbumElement.data("albumid");
+
+				var instAlbumJson = $.ajax({
+					method : "get",
+					url : "https://api.imgur.com/3/album/" + instAlbumId,
+					beforeSend: function (request)
+            		{
+            	    	request.setRequestHeader("Authorization", "Client-ID b103f734097df10");
+            		},
+					dataType : "json",
+
+					success : function(){
+						var instAlbumImage = instAlbumJson.responseJSON.data.images[0].id;
+						instAlbumElement.css({"background-image": "url(http://i.imgur.com/" + instAlbumImage + ".jpg)"}).removeClass('image-albumload');
+						target.albums["a" + instAlbumId] = new Array();
+						for (var i = instAlbumJson.responseJSON.data.images.length - 1; i >= 0; i--) {
+							target.albums["a" + instAlbumId].push(instAlbumJson.responseJSON.data.images[i].id);
+						};
+					}
+				});
+			});
+		}
+
+		/*function accessAlbum(target) {
+			var instAlbumId = String($(target).data("albumid"));
+			for (var i = target.albums["a" + instAlbumId].length - 1; i >= 0; i--) {
+				$('#album').append("<img src='http://i.imgur.com/" + target.albums["a" + instAlbumId][i] + ".jpg'>");
+			};
+		}*/
 
 		function getRandomColor() {
     		return "hsla(" + getRandomInt(80, 300) + ", 60%, 50%, 1)";
@@ -792,6 +835,10 @@
 
 		<div id="slideshow">
 			<div id="exit" onclick="quitSlideShow()"></div><div id="slideshowoverlay" onclick="switchSlideShow()"></div>
+		</div>
+
+		<div id="album">
+			
 		</div>
 	</body>
 </html>

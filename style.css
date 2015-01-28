@@ -209,6 +209,11 @@ body.nightmode .image {
   background-color: rgba(255, 255, 255, 0.8);
 }
 
+#slideshow .image.image-album .title:after {
+  content: ' - Album';
+  opacity: 0.5;
+}
+
 body.nightmode #slideshow .image .title {
   background-color: rgba(34, 34, 34, 0.8);
 }
