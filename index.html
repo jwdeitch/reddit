@@ -17,7 +17,6 @@
 			pageModifier : '',
 			lastUrl : '',
 			JSON : '',
-			newElement : '',
 			xpostMentions : [],
 			isNSFW : false,
 			slideshowLength : 0,
@@ -95,8 +94,6 @@
 							};
 						}
 
-						target.newElement = 'null';
-
 						//Imgur Handling
 						if (target.JSON.responseJSON.data.children[i].data.domain == "i.imgur.com" || target.JSON.responseJSON.data.children[i].data.domain == "imgur.com") {
 							
@@ -104,8 +101,7 @@
 							var imgurEndingLength = imgurEnding.length - 1;
 							if (imgurEnding[imgurEndingLength] == "gifv") {
 								// Imgur "GIFV" File
-								target.counter++;
-								target.newElement = $('<div/>', { class : 'image image-html5' }).html("<span class='helper'></span><video " + autoplayString + "loop='' muted='' preload='' poster='http://i.imgur.com/" + imgurEnding[imgurEndingLength - 1].substr(4) + ".jpg'><source src='http://i.imgur.com/" + imgurEnding[imgurEndingLength - 1].substr(4) + ".webm' type='video/webm'><source src='http://i.imgur.com/" + imgurEnding[imgurEndingLength - 1].substr(4) + ".mp4' type='video/mp4'></video><span class='title'>" + postTitle + "</span>").appendTo('#results');
+								appendImage(postTitle, "", "<video " + autoplayString + "loop='' muted='' preload='' poster='http://i.imgur.com/" + imgurEnding[imgurEndingLength - 1].substr(4) + ".jpg'><source src='http://i.imgur.com/" + imgurEnding[imgurEndingLength - 1].substr(4) + ".webm' type='video/webm'><source src='http://i.imgur.com/" + imgurEnding[imgurEndingLength - 1].substr(4) + ".mp4' type='video/mp4'></video>");
 							} else {
 								// Classic Image File
 
@@ -118,9 +114,7 @@
 									if (imgurCode.split(".").length == 1) {
 										imgurCode += ".jpg";
 									};
-
-									target.counter++;
-									target.newElement = $('<div/>', { class : 'image', style : "background-image: url(http://i.imgur.com/" + imgurCode + ")" }).html('<span class="title">' + postTitle + '</span>').appendTo('#results');
+									appendImage(postTitle, "http://i.imgur.com/" + imgurCode);
 								}
 							}
 						}
@@ -131,8 +125,7 @@
 							var gfycatUrl = target.JSON.responseJSON.data.children[i].data.url;
 							gfycatUrl = gfycatUrl.replace("http://gfycat.com/", "").replace("https://gfycat.com/", "").replace("http://www.gfycat.com/", "").replace("https://www.gfycat.com/", "");
 
-							target.counter++;
-							target.newElement = $('<div/>', { class : 'image image-html5' }).html("<span class='helper'></span><video class='gfycat' data-gfyid='" + gfycatUrl + "' loop='' " + autoplayString + "muted='' preload='' poster='http://thumbs.gfycat.com/" + gfycatUrl + "-poster.jpg'></video><span class='title'>" + postTitle + "</span>").appendTo('#results');
+							appendImage(postTitle, "", "<video class='gfycat' data-gfyid='" + gfycatUrl + "' loop='' " + autoplayString + "muted='' preload='' poster='http://thumbs.gfycat.com/" + gfycatUrl + "-poster.jpg'></video>");
 						}
 
 						//Other JPG / PNG / GIF
@@ -142,12 +135,9 @@
 							var otherUrlEnding = otherUrlBase.substr(otherUrlBase.length - 3).toLowerCase();
 
 							if (otherUrlEnding == "jpg" || otherUrlEnding == "png" || otherUrlEnding == "gif") {
-								target.counter++;
-								target.newElement = $('<div/>', { class : 'image', style : "background-image: url(" + target.JSON.responseJSON.data.children[i].data.url + ")" }).html('<span class="title">' + postTitle + '</span>').appendTo('#results');
+								appendImage(postTitle, target.JSON.responseJSON.data.children[i].data.url);
 							};
 						};
-
-						$(target.newElement).attr('data-id', target.counter);
 					};
 
 					// Setup GFYs
@@ -389,7 +379,7 @@
 							};
 						}
 
-						target.newElement = 'null';
+						//target.newElement = 'null';
 
 						//Imgur Handling
 						if (target.JSON.responseJSON.data.children[i].data.domain == "i.imgur.com" || target.JSON.responseJSON.data.children[i].data.domain == "imgur.com") {
@@ -398,8 +388,9 @@
 							var imgurEndingLength = imgurEnding.length - 1;
 
 							if (imgurEnding[imgurEndingLength] == "gifv") {
-								target.counter++;
-								target.newElement = $('<div/>', { class : 'image image-html5' }).html("<span class='helper'></span><video " + autoplayString + "loop='' muted='' preload='' poster='http://i.imgur.com/" + imgurEnding[imgurEndingLength - 1].substr(4) + ".jpg'><source src='http://i.imgur.com/" + imgurEnding[imgurEndingLength - 1].substr(4) + ".webm' type='video/webm'><source src='http://i.imgur.com/" + imgurEnding[imgurEndingLength - 1].substr(4) + ".mp4' type='video/mp4'></video><span class='title'>" + postTitle + "</span>").appendTo('#results');
+								//target.counter++;
+								//target.newElement = $('<div/>', { class : 'image image-html5' }).html("<span class='helper'></span><video " + autoplayString + "loop='' muted='' preload='' poster='http://i.imgur.com/" + imgurEnding[imgurEndingLength - 1].substr(4) + ".jpg'><source src='http://i.imgur.com/" + imgurEnding[imgurEndingLength - 1].substr(4) + ".webm' type='video/webm'><source src='http://i.imgur.com/" + imgurEnding[imgurEndingLength - 1].substr(4) + ".mp4' type='video/mp4'></video><span class='title'>" + postTitle + "</span>").appendTo('#results');
+								appendImage(postTitle, "", "<video " + autoplayString + "loop='' muted='' preload='' poster='http://i.imgur.com/" + imgurEnding[imgurEndingLength - 1].substr(4) + ".jpg'><source src='http://i.imgur.com/" + imgurEnding[imgurEndingLength - 1].substr(4) + ".webm' type='video/webm'><source src='http://i.imgur.com/" + imgurEnding[imgurEndingLength - 1].substr(4) + ".mp4' type='video/mp4'></video>");
 							} else {
 								// Classic Image File
 
@@ -413,8 +404,9 @@
 										// Use .jpg as a universal ending (browser displays any image anyway)
 										imgurCode += ".jpg";
 									};
-									target.counter++;
-									target.newElement = $('<div/>', { class : 'image', style : "background-image: url(http://i.imgur.com/" + imgurCode + ")" }).html('<span class="title">' + postTitle + '</span>').appendTo('#results');
+									//target.counter++;
+									//target.newElement = $('<div/>', { class : 'image', style : "background-image: url(http://i.imgur.com/" + imgurCode + ")" }).html('<span class="title">' + postTitle + '</span>').appendTo('#results');
+									appendImage(postTitle, "http://i.imgur.com/" + imgurCode);
 								}
 							}
 						}
@@ -424,8 +416,9 @@
 							var gfycatUrl = target.JSON.responseJSON.data.children[i].data.url;
 							gfycatUrl = gfycatUrl.replace("http://gfycat.com/", "").replace("https://gfycat.com/", "").replace("http://www.gfycat.com/", "").replace("https://www.gfycat.com/", "");
 
-							target.counter++;
-							target.newElement = $('<div/>', { class : 'image image-html5' }).html("<span class='helper'></span><video class='gfycat' data-gfyid='" + gfycatUrl + "' loop='' " + autoplayString + "muted='' preload='' poster='http://thumbs.gfycat.com/" + gfycatUrl + "-poster.jpg'></video><span class='title'>" + postTitle + "</span>").appendTo('#results');
+							//target.counter++;
+							//target.newElement = $('<div/>', { class : 'image image-html5' }).html("<span class='helper'></span><video class='gfycat' data-gfyid='" + gfycatUrl + "' loop='' " + autoplayString + "muted='' preload='' poster='http://thumbs.gfycat.com/" + gfycatUrl + "-poster.jpg'></video><span class='title'>" + postTitle + "</span>").appendTo('#results');
+							appendImage(postTitle, "", "<video class='gfycat' data-gfyid='" + gfycatUrl + "' loop='' " + autoplayString + "muted='' preload='' poster='http://thumbs.gfycat.com/" + gfycatUrl + "-poster.jpg'></video>");
 						}
 
 						//Other JPG / PNG / GIF
@@ -436,12 +429,11 @@
 
 							
 							if (otherUrlEnding == "jpg" || otherUrlEnding == "png" || otherUrlEnding == "gif") {
-								target.counter++;
-								target.newElement = $('<div/>', { class : 'image', style : "background-image: url(" + target.JSON.responseJSON.data.children[i].data.url + ")" }).html('<span class="title">' + postTitle + '</span>').appendTo('#results');
+								//target.counter++;
+								//target.newElement = $('<div/>', { class : 'image', style : "background-image: url(" + target.JSON.responseJSON.data.children[i].data.url + ")" }).html('<span class="title">' + postTitle + '</span>').appendTo('#results');
+								appendImage(postTitle, target.JSON.responseJSON.data.children[i].data.url);
 							};
 						};
-
-						$(target.newElement).attr('data-id', target.counter);
 					};
 
 					// Setup GFYs
@@ -459,15 +451,12 @@
 						$('<div/>', { class : 'panel-suggestion', onclick : "fetchJson('" + target.subreddit + " 1')" }).html('Switch to <br><span style="color: ' + getRandomColor() + ';" class="prefixspan">/r/</span>' + target.subreddit + '<br>top - ever').appendTo('#results');
 					} else {
 						$('<div/>', { class : 'panel-suggestion', onclick : "fetchJson('" + target.subreddit + " 4')" }).html('Switch to <br><span style="color: ' + getRandomColor() + ';" class="prefixspan">/r/</span>' + target.subreddit + '<br>top - month').appendTo('#results');
-					}
-
-
+					};
 
 					// Suggest Mentioned Subreddits - "Mentioned here"
 					for (var i = target.xpostMentions.length - 1; i >= 0; i--) {
 						$('<div/>', { class : 'panel-suggestion', onclick : "fetchJson('" + target.xpostMentions[i] + "')" }).html('Mentioned here<br><span style="color: ' + getRandomColor() + ';" class="prefixspan">/r/</span>' + target.xpostMentions[i]).appendTo('#results');
 					};
-
 
 					// Suggest Popular Subreddits - "Recommended"
 					if (settings.showNSFW && target.isNSFW) {
@@ -514,7 +503,6 @@
 				}
 
 			});
-
 		}
 
 		function setupGfy() {
@@ -534,6 +522,21 @@
 					}
 				});
 			});
+		}
+
+		function appendImage(imageTitle, imageUrl, videoContent) {
+			if (videoContent) {
+				var imageClass = "image-html5";
+				videoContent = "<span class='helper'></span>" + videoContent;
+			} else {
+				var imageClass = "";
+				var videoContent = "";
+			}
+
+			target.counter++;
+			var createdImage = $('<div/>', { class : 'image ' + imageClass, style : 'background-image : url(' + imageUrl + ')' }).html(videoContent + "<span class='title'>" + imageTitle  + "</span>").appendTo('#results');
+			createdImage.attr('data-id', target.counter);
+			//console.log("I added an Image! Number " + target.counter + "!");
 		}
 
 		function getRandomColor() {
