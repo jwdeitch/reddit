@@ -73,6 +73,7 @@
 			
 			// Remove all of the .panel elements
 			$('.panel, .panel-suggestion').remove();
+			$('.focus-nextpage').removeClass('focus-nextpage');
 
 			// Start the AJAX Request
 			target.JSON = $.ajax({
@@ -594,9 +595,10 @@
 					$('#album').html(' ').addClass('active');
 					target.albumPosition = 0;
 					for (var i = target.albums["a" + instAlbumId].length - 1; i >= 0; i--) {
-						$('#album').append("<img src='http://i.imgur.com/" + target.albums["a" + instAlbumId][i] + ".jpg'>");
+						$('#album').append("<div class='aimg' style='background-image:url(http://i.imgur.com/" + target.albums["a" + instAlbumId][i] + ".jpg)'></div>");
 					};
-					$('#album img').eq(0).addClass('focus focus-firstalbum');
+					$('#album .aimg').eq(0).addClass('focus focus-firstalbum');
+					$('#album .aimg').eq(target.albumLength-1).addClass('focus-lastalbum');
 				} else {
 					// The Album is corrupted or missing. 
 					$('.image').eq(target.slideshowPosition).removeClass('image-album');
@@ -663,8 +665,8 @@
 				};
 
 				$('#album .focus').removeClass('focus');
-				$(window).scrollTop(($('#album img').eq(target.albumPosition).offset().top - 25));
-				$('#album img').eq(target.albumPosition).addClass('focus');
+				$(window).scrollTop(($('#album .aimg').eq(target.albumPosition).offset().top - 50));
+				$('#album .aimg').eq(target.albumPosition).addClass('focus');
 
 				return;
 			};
@@ -679,22 +681,21 @@
 				if (target.slideshowPosition >= target.slideshowLength) { target.slideshowPosition = 0; };
 			};
 
+			if (target.slideshowPosition == (target.slideshowLength - 1)) {
+				$('#results .image').eq(target.slideshowPosition).addClass('focus-nextpage');
+			}
+
 			if (!target.slideshowActive) {
 				// This is the blue highlighting mode
 				if (target.highlightingActive) {
 					$('#subreddit-input').blur();
-					$('.focus').removeClass('focus focus-nextpage');
+					$('.focus').removeClass('focus');
 					$(window).scrollTop(($('.image').eq(target.slideshowPosition).offset().top - 110));
 
-					if (target.slideshowPosition == (target.slideshowLength - 1)) {
-						var classString = "focus focus-nextpage"
-					} else { var classString = "focus" };
-
-					$('#results .image').eq(target.slideshowPosition).addClass(classString);
+					$('#results .image').eq(target.slideshowPosition).addClass("focus");
 				};
 			} else {
 				$('#slideshow .image').remove();
-	
 				var slideshowImage = $('#results .image').eq(target.slideshowPosition);
 				$('#slideshow').append(slideshowImage.clone());
 			}
@@ -736,13 +737,9 @@
 			$('#slideshow').removeClass('active');
 			$('#subreddit-input').blur();
 
-			$('.focus').removeClass('focus focus-nextpage');
+			$('.focus').removeClass('focus');
 
-			if (target.slideshowPosition == (target.slideshowLength - 1)) {
-				var classString = "focus focus-nextpage"
-			} else { var classString = "focus" };
-
-			$('#results .image').eq(target.slideshowPosition).addClass(classString);
+			$('#results .image').eq(target.slideshowPosition).addClass('focus');
 			$(window).scrollTop(($('.image').eq(target.slideshowPosition).offset().top - 110));
 		}
 
