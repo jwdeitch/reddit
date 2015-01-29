@@ -48,7 +48,8 @@
 			firstPress : false,
 			usedSettings : false,
 			usedFilter : false,
-			cantSaveOptions : false
+			cantSaveOptions : false,
+			messageTimer : true
 		};
 
 		// Spooky Recommendations
@@ -70,10 +71,8 @@
 			}
 
 			target.tempUrl = target.url + target.pageModifier + "&after=" + target.lastUrl;
-			
-			// Remove all of the .panel elements
-			$('.panel, .panel-suggestion').remove();
-			$('.focus-nextpage').removeClass('focus-nextpage');
+
+			$('.focus-nextpage').removeClass('focus-nextpage').addClass('focus-nextload');
 
 			// Start the AJAX Request
 			target.JSON = $.ajax({
@@ -82,6 +81,9 @@
 				dataType : "json",
 
 				success : function(){
+
+					$('.panel, .panel-suggestion').remove();
+					$('.focus-nextload').removeClass('focus-nextload');
 
 					target.lastUrl = target.JSON.responseJSON.data.after;
 
@@ -192,8 +194,8 @@
 				},
 
 				error : function (x, status, error) {
-					$('#results').html(' ').append('<div id="loader">There was an error.<br><br><pre>' + error + '</pre></div>');
-					$('#subreddit-input').val('').focus();
+					outputMessage("There was an error loading the page");
+					$('.focus-nextload').removeClass('focus-nextload').addClass('focus-nextpage');
 				}
 
 			});
@@ -264,6 +266,10 @@
 
 				$('<div/>', { class : 'panel-suggestion panel-favorite', onclick : "fetchJson('help')" }).html('help').appendTo('#results');
 				$('<div/>', { class : 'panel-suggestion panel-favorite', onclick : "fetchJson('options')" }).html('options').appendTo('#results');
+
+				$('.panel-suggestion:odd').each(function(){
+					$(this).after("<br>");
+				})
 				
 				document.title = "Reddit Crawler";
 				target.specialMode = true;
@@ -603,6 +609,7 @@
 					// The Album is corrupted or missing. 
 					$('.image').eq(target.slideshowPosition).removeClass('image-album');
 					$('#slideshow .image-album').removeClass('image-album');
+					outputMessage("There was an error loading the Album");
 				};
 			};
 		}
@@ -619,6 +626,12 @@
 		    this.each(function(){
 		        $('<img/>')[0].src = this;
 		    });
+		}
+
+		function outputMessage(string) {
+			window.clearTimeout(system.messageTimer);
+			$('#message').text(string).addClass('message-visible');
+			system.messageTimer = setTimeout(function(){ $('#message').removeClass('message-visible'); }, 2000);
 		}
 
 		function evaluateSettings() {
@@ -844,6 +857,13 @@
 				for (var i = panelsToDraw; i >= 0; i--) {
 					$('<div/>', { class : 'panel-suggestion panel-favorite panel-disabled' }).html('').appendTo('#results');
 				};
+
+				$('<div/>', { class : 'panel-suggestion panel-favorite', onclick : "fetchJson('help')" }).html('help').appendTo('#results');
+				$('<div/>', { class : 'panel-suggestion panel-favorite', onclick : "fetchJson('options')" }).html('options').appendTo('#results');
+
+				$('.panel-suggestion:odd').each(function(){
+					$(this).after("<br>");
+				});
 				
 				document.title = "Reddit Crawler";
 				target.specialMode = true;
@@ -880,5 +900,7 @@
 		<div id="album">
 			
 		</div>
+
+		<div id="message"></div>
 	</body>
 </html>
