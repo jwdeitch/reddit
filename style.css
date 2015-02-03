@@ -347,6 +347,20 @@ body.nightmode #results .image:hover:after {
   background-color: rgba(34, 34, 34, 0.5);
 }
 
+#results .image.nofocus:first-child:before {
+  content: "Down arrow to highlight";
+  position: absolute;
+  color: #fff;
+  text-shadow: 0 1px 0 #111;
+  font-size: 24px;
+  font-weight: 100;
+  text-align: center;
+  top: 220px;
+  width: 100%;
+  left: 0;
+  right: 0;
+}
+
 #results .image.focus:before,
 #results .panel-suggestion.focus:before {
   content: '';
@@ -355,7 +369,19 @@ body.nightmode #results .image:hover:after {
   right: 50px;
   bottom: 50px;
   left: 50px;
+  width: auto;
   border: 40px dashed rgba(153, 213, 255, 0.3);
+}
+
+#results .image.focus:first-child:before {
+  content: "Left and Right arrow to navigate";
+  white-space: normal;
+  text-align: center;
+  text-shadow: 0px 1px 0 #000;
+  font-size: 24px;
+  font-weight: 100;
+  padding-top: 130px;
+  color: #fff;
 }
 
 #results .image.focus.focus-nextpage:before {

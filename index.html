@@ -29,7 +29,8 @@
 			albumLength : 0,
 			albumPosition : 0,
 			counter : 0,
-			specialMode : false
+			specialMode : true,
+			nofocusActive : true
 		};
 
 		var settings = {
@@ -277,8 +278,8 @@
 			}
 
 			//Check if "Help" is used, if so, cancel everything and display the Help module
-			if (target.subreddit.toLowerCase() == "help") {
-				$('#results').html(' ').append('<div class="panel panel-help"><h1>Help</h1><br><pre>CTRL</pre> or <pre>ALT</pre><span>Enter / Exit Slideshow</span><br><pre>&larr;</pre> <pre>&rarr;</pre><span>Switch images</span><br><pre>&uarr;</pre> <pre>&darr;</pre><span>Switch between text and images</span><br><pre>&uarr;</pre> during Slideshow - Access Album<pre>F11</pre><span>Fullscreen</span><br><br>Press space when highlighting the last image to load the next page.<br><br>Enter <pre>options</pre> to change your settings.<br><br>Append a number to the subreddit to filter:<br><br><pre>0</pre> - Hot (default)<br><pre>1</pre> - Top of all Time<br><pre>2</pre> - New<br><pre>3</pre> - Top of the Year<br><pre>4</pre> - Top of the Month<br><br><pre>cats 3</pre> for the best cats of the year<br><pre>gif 1</pre> for the best GIFs of all time.<br><br>Visit <a href="http://github.com/cetigo/reddit" target="_blank">github</a> for more details.<br><br></div>');
+			if (target.subreddit.toLowerCase() == "help" || target.subreddit.toLowerCase() == "?") {
+				$('#results').html(' ').append('<div class="panel panel-help"><h1>Help</h1><br><pre>CTRL</pre> or <pre>ALT</pre><span>Enter / Exit Slideshow</span><br><pre>&larr;</pre> <pre>&rarr;</pre><span>Switch images</span><br><pre>&uarr;</pre> <pre>&darr;</pre><span>Switch between text and images</span><br><pre>&uarr;</pre> <span>During Slideshow - Access Album</span><br><pre>F11</pre><span>Fullscreen</span><br><br>Press space when highlighting the last image to load the next page.<br><br>Enter <pre>options</pre> to change your settings.<br><br>Append a number to the subreddit to filter:<br><br><pre>0</pre> - Hot (default)<br><pre>1</pre> - Top of all Time<br><pre>2</pre> - New<br><pre>3</pre> - Top of the Year<br><pre>4</pre> - Top of the Month<br><br><pre>cats 3</pre> for the best cats of the year<br><pre>gif 1</pre> for the best GIFs of all time.<br><br>Visit <a href="http://github.com/cetigo/reddit" target="_blank">github</a> for more details.<br><br></div>');
 				document.title = "Help - Reddit Crawler";
 				target.specialMode = true;
 				return;
@@ -332,9 +333,7 @@
 			}*/
 
 			target.subreddit = target.subreddit.replace("/r/", "");
-			document.title = target.subreddit + " - Reddit Crawler";
-
-			favoriteHandler(target.subreddit);
+			document.title = target.subreddit + " - Reddit Crawler";			
 
 			target.url = "http://www.reddit.com/r/" + target.subreddit + target.sort;
 
@@ -351,6 +350,7 @@
 			target.slideshowLength = 0;
 			target.page = 0;
 			target.albumActive = false;
+			target.nofocusActive = true;
 			for (var member in target.albums) delete target.albums[member];
 			
 			target.counter = -1;
@@ -366,6 +366,7 @@
 
 				success : function(){
 					$('#loader').remove();
+					favoriteHandler(target.subreddit);
 
 					target.lastUrl = target.JSON.responseJSON.data.after;
 
@@ -402,8 +403,6 @@
 							var imgurEndingLength = imgurEnding.length - 1;
 
 							if (imgurEnding[imgurEndingLength] == "gifv") {
-								//target.counter++;
-								//target.newElement = $('<div/>', { class : 'image image-html5' }).html("<span class='helper'></span><video " + autoplayString + "loop='' muted='' preload='' poster='http://i.imgur.com/" + imgurEnding[imgurEndingLength - 1].substr(4) + ".jpg'><source src='http://i.imgur.com/" + imgurEnding[imgurEndingLength - 1].substr(4) + ".webm' type='video/webm'><source src='http://i.imgur.com/" + imgurEnding[imgurEndingLength - 1].substr(4) + ".mp4' type='video/mp4'></video><span class='title'>" + postTitle + "</span>").appendTo('#results');
 								appendImage(postTitle, "", "<video " + autoplayString + "loop='' muted='' preload='' poster='http://i.imgur.com/" + imgurEnding[imgurEndingLength - 1].substr(4) + ".jpg'><source src='http://i.imgur.com/" + imgurEnding[imgurEndingLength - 1].substr(4) + ".webm' type='video/webm'><source src='http://i.imgur.com/" + imgurEnding[imgurEndingLength - 1].substr(4) + ".mp4' type='video/mp4'></video>");
 							} else {
 								// Classic Image File
@@ -419,8 +418,6 @@
 										// Use .jpg as a universal ending (browser displays any image anyway)
 										imgurCode += ".jpg";
 									};
-									//target.counter++;
-									//target.newElement = $('<div/>', { class : 'image', style : "background-image: url(http://i.imgur.com/" + imgurCode + ")" }).html('<span class="title">' + postTitle + '</span>').appendTo('#results');
 									appendImage(postTitle, "http://i.imgur.com/" + imgurCode);
 								}
 							}
@@ -430,9 +427,6 @@
 						else if (target.JSON.responseJSON.data.children[i].data.domain == "gfycat.com" && settings.renderHtml5 == true) {
 							var gfycatUrl = target.JSON.responseJSON.data.children[i].data.url;
 							gfycatUrl = gfycatUrl.replace("http://gfycat.com/", "").replace("https://gfycat.com/", "").replace("http://www.gfycat.com/", "").replace("https://www.gfycat.com/", "");
-
-							//target.counter++;
-							//target.newElement = $('<div/>', { class : 'image image-html5' }).html("<span class='helper'></span><video class='gfycat' data-gfyid='" + gfycatUrl + "' loop='' " + autoplayString + "muted='' preload='' poster='http://thumbs.gfycat.com/" + gfycatUrl + "-poster.jpg'></video><span class='title'>" + postTitle + "</span>").appendTo('#results');
 							appendImage(postTitle, "", "<video class='gfycat' data-gfyid='" + gfycatUrl + "' loop='' " + autoplayString + "muted='' preload='' poster='http://thumbs.gfycat.com/" + gfycatUrl + "-poster.jpg'></video>");
 						}
 
@@ -444,8 +438,6 @@
 
 							
 							if (otherUrlEnding == "jpg" || otherUrlEnding == "png" || otherUrlEnding == "gif") {
-								//target.counter++;
-								//target.newElement = $('<div/>', { class : 'image', style : "background-image: url(" + target.JSON.responseJSON.data.children[i].data.url + ")" }).html('<span class="title">' + postTitle + '</span>').appendTo('#results');
 								appendImage(postTitle, target.JSON.responseJSON.data.children[i].data.url);
 							};
 						};
@@ -551,6 +543,9 @@
 
 			target.counter++;
 			var createdImage = $('<div/>', { class : 'image ' + imageClass, style : 'background-image : url(' + imageUrl + ')' }).html(videoContent + "<span class='title'>" + imageTitle  + "</span>").appendTo('#results');
+			if (target.counter == 0) {
+				$('#results .image').eq(0).addClass('nofocus');
+			};
 
 			if (albumID) {
 				createdImage.attr('data-albumid', albumID).addClass('image-album image-albumload');
@@ -721,6 +716,10 @@
 			// Upon enabling highlighting
 			if (inverse) {
 				if (!target.highlightingActive) {
+					if (target.nofocusActive) {
+						target.nofocusActive = false;
+						$('.nofocus').removeClass('nofocus');
+					};
 					target.highlightingActive = true;
 					$('#subreddit-input').blur();
 					if ($('#subreddit-input').val() != target.rawinput) {
