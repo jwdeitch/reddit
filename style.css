@@ -497,6 +497,12 @@ body.nightmode #exit {
   display: block;
 }
 
+#slideshow.slideshow-blur {
+  -webkit-filter: blur(2px);
+  -moz-filter: blur(2px);
+  filter: blur(2px);
+}
+
 #slideshowoverlay {
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
