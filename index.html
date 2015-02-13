@@ -1,0 +1,908 @@
+<html>
+	<head>
+		<title>Reddit Crawler</title>
+		<link rel="stylesheet" href="style.css">
+		<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+		<script src="jquery.unveil.js"></script>
+		<script>
+
+		var target = {
+			rawinput : '',
+			subreddit : '',
+			url : '',
+			tempUrl : '',
+			sort : '',
+			mode : '',
+			page : 0,
+			pageModifier : '',
+			lastUrl : '',
+			JSON : '',
+			xpostMentions : [],
+			albums : {},
+			isNSFW : false,
+			slideshowLength : 0,
+			slideshowPosition : "0",
+			slideshowActive : false,
+			slideshowPrescroll : 0,
+			highlightingActive : false,
+			albumActive : false,
+			albumLength : 0,
+			albumPosition : 0,
+			counter : 0,
+			specialMode : true,
+			nofocusActive : true
+		};
+
+		var settings = {
+			renderHtml5 : true,
+			showNSFW : true,
+			autoplayHTML5 : true,
+			fadeLabels : false,
+			suggestReddits : true,
+			hugeImages : false,
+			allowOtherSources : true,
+			nightMode : false
+		};
+
+		var system = {
+			untouched : true,
+			firstPress : false,
+			usedSettings : false,
+			usedFilter : false,
+			cantSaveOptions : false,
+			messageTimer : true
+		};
+
+
+		// Spooky Recommendations
+		var recommendationsSfw=["\x61\x77\x77","\x50\x69\x63\x73","\x43\x61\x74\x73","\x61\x77\x77\x64\x75\x63\x61\x74\x69\x6F\x6E\x61\x6C","\x45\x61\x72\x74\x68\x50\x6F\x72\x6E","\x66\x75\x6E\x6E\x79","\x41\x64\x76\x69\x63\x65\x41\x6E\x69\x6D\x61\x6C\x73","\x67\x69\x66\x73","\x44\x61\x74\x61\x49\x73\x42\x65\x61\x75\x74\x69\x66\x75\x6C","\x41\x72\x74","\x4F\x6C\x64\x53\x63\x68\x6F\x6F\x6C\x43\x6F\x6F\x6C","\x57\x61\x6C\x6C\x70\x61\x70\x65\x72\x73","\x57\x6F\x61\x68\x44\x75\x64\x65","\x72\x65\x61\x63\x74\x69\x6F\x6E\x67\x69\x66\x73","\x41\x62\x61\x6E\x64\x6F\x6E\x65\x64\x50\x6F\x72\x6E","\x67\x61\x6D\x69\x6E\x67","\x66\x6F\x6F\x64","\x70\x65\x72\x66\x65\x63\x74\x74\x69\x6D\x69\x6E\x67","\x6D\x69\x6E\x69\x6D\x61\x6C\x69\x73\x6D","\x4F\x66\x66\x65\x6E\x73\x69\x76\x65\x5F\x57\x61\x6C\x6C\x70\x61\x70\x65\x72\x73","\x62\x6C\x75\x65","\x42\x69\x72\x64\x73\x57\x69\x74\x68\x41\x72\x6D\x73","\x46\x6F\x6F\x64\x50\x6F\x72\x6E","\x75\x6E\x65\x78\x70\x65\x63\x74\x65\x64"];
+		var recommendationsNsfw=["\x4E\x53\x46\x57","\x42\x75\x73\x74\x79\x50\x65\x74\x69\x74\x65","\x4E\x53\x46\x57\x5F\x47\x69\x66","\x4F\x69\x6C\x70\x6F\x72\x6E","\x63\x66\x6E\x6D","\x58\x73\x6F\x6D\x65","\x50\x72\x65\x74\x74\x79\x47\x69\x72\x6C\x73","\x54\x69\x74\x74\x69\x65\x73","\x53\x65\x78\x79\x47\x69\x72\x6C\x73","\x62\x6F\x6E\x65\x72\x6D\x61\x74\x65\x72\x69\x61\x6C","\x67\x65\x6E\x74\x6C\x65\x6D\x61\x6E\x62\x6F\x6E\x65\x72\x73","\x42\x6F\x6F\x62\x69\x65\x73","\x41\x73\x73","\x41\x6E\x61\x6C","\x43\x75\x6D\x73\x6C\x75\x74\x73","\x4E\x53\x46\x57\x48\x61\x72\x64\x63\x6F\x72\x65","\x4D\x49\x4C\x46","\x42\x6C\x6F\x77\x6A\x6F\x62\x73","\x47\x69\x72\x6C\x73\x69\x6E\x59\x6F\x67\x61\x70\x61\x6E\x74\x73","\x68\x6F\x6C\x64\x74\x68\x65\x6D\x6F\x61\x6E","\x62\x75\x72\x73\x74\x69\x6E\x67\x6F\x75\x74","\x50\x65\x72\x6B\x79","\x36\x30\x66\x70\x73\x70\x6F\x72\x6E","\x4F\x5F\x46\x61\x63\x65\x73","\x4C\x65\x67\x61\x6C\x54\x65\x65\x6E\x73","\x63\x65\x6C\x65\x62\x6E\x73\x66\x77","\x64\x61\x74\x67\x61\x70","\x53\x65\x78\x79\x42\x75\x74\x4E\x6F\x74\x50\x6F\x72\x6E"];
+
+		var favorites = [];
+
+		var autoplayString = "autoplay='' ";
+
+
+		function extendPage(invokeCallback) {
+			target.page++;
+
+			if (target.sortFilter == 0 || target.sortFilter == 2) {
+				target.pageModifier = "?count=" + target.page * 25;
+			} else {
+				target.pageModifier = "&count=" + target.page * 25;
+			}
+
+			target.tempUrl = target.url + target.pageModifier + "&after=" + target.lastUrl;
+
+			$('.focus-nextpage').removeClass('focus-nextpage').addClass('focus-nextload');
+
+			// Start the AJAX Request
+			target.JSON = $.ajax({
+				method : "get",
+				url : target.tempUrl,
+				dataType : "json",
+
+				success : function(){
+
+					$('.panel, .panel-suggestion').remove();
+					$('.focus-nextload').removeClass('focus-nextload');
+
+					target.lastUrl = target.JSON.responseJSON.data.after;
+
+					for (var i = 0; i <= (target.JSON.responseJSON.data.children.length - 1); i++) {
+						
+						var postTitle = target.JSON.responseJSON.data.children[i].data.title;
+
+						// X-Post Scan
+						if(~postTitle.indexOf('r/')) {
+							var xpostName = postTitle.substr( (postTitle.indexOf('r/') + 2) , 999 );
+							xpostName = xpostName.split(' ')[0].split(')')[0].split(']')[0].replace(/\W/g, '');
+
+							if (xpostName != target.subreddit) {
+								target.xpostMentions.push(xpostName);
+							};
+						}
+
+						//Imgur Handling
+						if (target.JSON.responseJSON.data.children[i].data.domain == "i.imgur.com" || target.JSON.responseJSON.data.children[i].data.domain == "imgur.com") {
+							
+							var imgurEnding = target.JSON.responseJSON.data.children[i].data.url.split(".");
+							var imgurEndingLength = imgurEnding.length - 1;
+							if (imgurEnding[imgurEndingLength] == "gifv") {
+								// Imgur "GIFV" File
+								appendImage(postTitle, "", "<video " + autoplayString + "loop='' muted='' preload='' poster='http://i.imgur.com/" + imgurEnding[imgurEndingLength - 1].substr(4) + ".jpg'><source src='http://i.imgur.com/" + imgurEnding[imgurEndingLength - 1].substr(4) + ".webm' type='video/webm'><source src='http://i.imgur.com/" + imgurEnding[imgurEndingLength - 1].substr(4) + ".mp4' type='video/mp4'></video>");
+							} else {
+								// Classic Image File
+
+								var imgurCode = target.JSON.responseJSON.data.children[i].data.url.replace("http://i.imgur.com/", "").replace("https://i.imgur.com/", "").replace("http://imgur.com/", "").replace("https://imgur.com/", "").replace("http://www.imgur.com/", "").replace("https://www.imgur.com/", "");
+
+								if (imgurCode.substr(0,2) == "a/") {
+								} else if (imgurCode.substr(0,8) == "gallery/") {
+								} else {
+
+									if (imgurCode.split(".").length == 1) {
+										imgurCode += ".jpg";
+									};
+									appendImage(postTitle, "http://i.imgur.com/" + imgurCode);
+								}
+							}
+						}
+
+						//Gfycat Handling
+						else if (target.JSON.responseJSON.data.children[i].data.domain == "gfycat.com" && settings.renderHtml5 == true) {
+							
+							var gfycatUrl = target.JSON.responseJSON.data.children[i].data.url;
+							gfycatUrl = gfycatUrl.replace("http://gfycat.com/", "").replace("https://gfycat.com/", "").replace("http://www.gfycat.com/", "").replace("https://www.gfycat.com/", "");
+
+							appendImage(postTitle, "", "<video class='gfycat' data-gfyid='" + gfycatUrl + "' loop='' " + autoplayString + "muted='' preload='' poster='http://thumbs.gfycat.com/" + gfycatUrl + "-poster.jpg'></video>");
+						}
+
+						//Other JPG / PNG / GIF
+						else if (settings.allowOtherSources == true) {
+
+							var otherUrlBase = target.JSON.responseJSON.data.children[i].data.url;
+							var otherUrlEnding = otherUrlBase.substr(otherUrlBase.length - 3).toLowerCase();
+
+							if (otherUrlEnding == "jpg" || otherUrlEnding == "png" || otherUrlEnding == "gif") {
+								appendImage(postTitle, target.JSON.responseJSON.data.children[i].data.url);
+							};
+						};
+					};
+
+					// Setup GFYs
+					setupGfy();
+					setupAlbum();
+
+					// Refresh Slideshow Length
+					target.slideshowLength = $('.image').length;
+
+					// Go to the next image if a callback is invoked
+					if (invokeCallback) { switchSlideShow(); };
+
+					// extendPage Card
+					$('<div/>', { class: 'panel-suggestion' , onclick : "extendPage()" }).html('Continue<br>Page ' + (target.page + 2) + '<br><span style="color: ' + getRandomColor() + ';" class="prefixspan">/r/</span>' + target.subreddit).appendTo('#results');
+
+					// Refresh Current Subreddit Info Card
+					if (target.mode != 'top - ever') {
+						$('<div/>', { class : 'panel-suggestion', onclick : "fetchJson('" + target.subreddit + " 1')" }).html('Switch to <br><span style="color: ' + getRandomColor() + ';" class="prefixspan">/r/</span>' + target.subreddit + '<br>top - ever').appendTo('#results');
+					} else {
+						$('<div/>', { class : 'panel-suggestion', onclick : "fetchJson('" + target.subreddit + " 4')" }).html('Switch to <br><span style="color: ' + getRandomColor() + ';" class="prefixspan">/r/</span>' + target.subreddit + '<br>top - month').appendTo('#results');
+					}
+
+
+
+					// Suggest Mentioned Subreddits - "Mentioned here"
+					for (var i = target.xpostMentions.length - 1; i >= 0; i--) {
+						$('<div/>', { class : 'panel-suggestion', onclick : "fetchJson('" + target.xpostMentions[i] + "')" }).html('Mentioned here<br><span style="color: ' + getRandomColor() + ';" class="prefixspan">/r/</span>' + target.xpostMentions[i]).appendTo('#results');
+					};
+
+
+					// Suggest Popular Subreddits - "Recommended"
+					if (settings.showNSFW && target.isNSFW) {
+						for (var i = getRandomInt(1,2); i >= 0; i--) {
+							var randomRecommendation = recommendationsNsfw[Math.floor(Math.random() * recommendationsNsfw.length)];
+
+							$('<div/>', { class : 'panel-suggestion', onclick : "fetchJson('" + randomRecommendation + "')" }).html('Recommended<br><span style="color: ' + getRandomColor() + ';" class="prefixspan">/r/</span>' + randomRecommendation).appendTo('#results');
+						};
+					} else {
+						for (var i = getRandomInt(1,2); i >= 0; i--) {
+							var randomRecommendation = recommendationsSfw[Math.floor(Math.random() * recommendationsSfw.length)];
+
+							$('<div/>', { class : 'panel-suggestion', onclick : "fetchJson('" + randomRecommendation + "')" }).html('Recommended<br><span style="color: ' + getRandomColor() + ';" class="prefixspan">/r/</span>' + randomRecommendation).appendTo('#results');
+						};
+					};
+
+					$('.image').bind('click', function(){ setupSlideShow(this); });
+				},
+
+				error : function (x, status, error) {
+					outputMessage("There was an error loading the page");
+					$('.focus-nextload').removeClass('focus-nextload').addClass('focus-nextpage');
+				}
+
+			});
+		}
+
+		function fetchJson(subredditOverwrite) {
+			// Try to save Settings
+			if (system.usedSettings) { 
+				try {
+					localStorage.setItem('settings', JSON.stringify(settings)); 
+				} catch(err) {
+					system.cantSaveOptions = true;
+				}
+			};
+
+			// Try to save the favorites
+			try {
+				localStorage.setItem('favorites', JSON.stringify(favorites)); 
+			} catch(err) {
+				system.cantSaveOptions = true;
+			};
+
+			if (system.untouched) { system.untouched = false; };
+				system.firstPress = true;
+
+			// Gather target Subreddit
+			if (!subredditOverwrite) {
+				target.subreddit = $('#subreddit-input').val().trim();
+				target.rawinput = target.subreddit;
+			} else {
+				target.subreddit = subredditOverwrite;
+				target.rawinput = subredditOverwrite;
+				$('#subreddit-input').val(subredditOverwrite);
+			};
+
+			// Set Hash
+			//window.location.hash = "!/" + target.subreddit;
+
+			//Check for filter after subreddit name
+			if (target.subreddit.split(" ").length > 1) {
+
+				/*Check for page modifier after filter
+				if (target.subreddit.split(" ").length > 2) {
+					target.page = target.subreddit.split(" ")[2];
+				} else { target.page = 0; };*/
+
+				system.usedFilter = true;
+				target.sortFilter = target.subreddit.split(" ")[1];
+				target.subreddit = target.subreddit.split(" ")[0];
+			} else {
+				system.usedFilter = false;
+				target.sortFilter = 0;
+			}
+
+			if (target.subreddit == "") {
+				$('#results').html(' ');
+				var panelsToDraw = 5;
+
+				for (var i = favorites.length - 1; i >= 0; i--) {
+					if (i == 6) break;
+					$('<div/>', { class : 'panel-suggestion panel-favorite', onclick : "fetchJson('" + favorites[i][0] + "')" }).html('<span style="color: ' + getRandomColor() + ';" class="prefixspan">/r/</span>' + favorites[i][0]).appendTo('#results');
+					panelsToDraw--;
+				};
+
+				for (var i = panelsToDraw; i >= 0; i--) {
+					$('<div/>', { class : 'panel-suggestion panel-favorite panel-disabled' }).html('').appendTo('#results');
+				};
+
+				$('<div/>', { class : 'panel-suggestion panel-favorite', onclick : "fetchJson('help')" }).html('help').appendTo('#results');
+				$('<div/>', { class : 'panel-suggestion panel-favorite', onclick : "fetchJson('options')" }).html('options').appendTo('#results');
+
+				$('.panel-suggestion:odd').each(function(){
+					$(this).after("<br>");
+				})
+				
+				document.title = "Reddit Crawler";
+				target.specialMode = true;
+				return;
+			}
+
+			//Check if "Help" is used, if so, cancel everything and display the Help module
+			if (target.subreddit.toLowerCase() == "help" || target.subreddit.toLowerCase() == "?") {
+				$('#results').html(' ').append('<div class="panel panel-help"><h1>Help</h1><br><pre>CTRL</pre> or <pre>ALT</pre><span>Enter / Exit Slideshow</span><br><pre>&larr;</pre> <pre>&rarr;</pre><span>Switch images</span><br><pre>&uarr;</pre> <pre>&darr;</pre><span>Switch between text and images</span><br><pre>&uarr;</pre> <span>During Slideshow - Access Album</span><br><pre>F11</pre><span>Fullscreen</span><br><br>Press space when highlighting the last image to load the next page.<br><br>Enter <pre>options</pre> to change your settings.<br><br>Append a number to the subreddit to filter:<br><br><pre>0</pre> - Hot (default)<br><pre>1</pre> - Top of all Time<br><pre>2</pre> - New<br><pre>3</pre> - Top of the Year<br><pre>4</pre> - Top of the Month<br><br><pre>cats 3</pre> for the best cats of the year<br><pre>gif 1</pre> for the best GIFs of all time.<br><br>Visit <a href="http://github.com/cetigo/reddit" target="_blank">github</a> for more details.<br><br></div>');
+				document.title = "Help - Reddit Crawler";
+				target.specialMode = true;
+				return;
+			};
+
+			//Check if "Options" is used, if so, cancel everything, display the Options module and set up the listeners
+			if (target.subreddit.toLowerCase() == "options") {
+				$('#results').html(' ').append('<div class="panel panel-options"><h1>Options</h1><br><br><h2>General</h2><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-3"><h6>Show NSFW Content</h6></div><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-4"><h6>Huge Images</h6></div><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-6"><h6>Suggest Subreddits</h6></div><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-9"><h6>Night Mode</h6></div><h2>Performance</h2><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-2"><h6>Render HTML5 Video</h6></div><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-5"><h6>Smooth Labels</h6></div><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-7"><h6>Allow all Sources</h6></div><div class="options-box"><input type="checkbox" class="uiswitch" disabled="" id="optionbox-8"><h6>Use Lazy Loading</h6></div></div>');
+
+				if (system.cantSaveOptions) {
+					$('.panel-options').append("<br><br>We're sorry, but we can't permanently save your settings. Usually this is caused by surfing in Private Mode.<br><br>");
+				};
+
+				document.title = "Options - Reddit Crawler";
+				target.specialMode = true;
+
+				if (settings.renderHtml5) { $('#optionbox-2').prop('checked', true); };
+				if (settings.showNSFW) { $('#optionbox-3').prop('checked', true); };
+				if (settings.hugeImages) { $('#optionbox-4').prop('checked', true); };
+				if (settings.fadeLabels) { $('#optionbox-5').prop('checked', true); };
+				if (settings.suggestReddits) { $('#optionbox-6').prop('checked', true); };
+				if (settings.allowOtherSources) { $('#optionbox-7').prop('checked', true); };
+				if (settings.nightMode) { $('#optionbox-9').prop('checked', true); };
+
+				$('#optionbox-2').change(function() { settings.renderHtml5 = $(this).prop('checked'); });
+				$('#optionbox-3').change(function() { settings.showNSFW = $(this).prop('checked'); });
+				$('#optionbox-4').change(function() { settings.hugeImages = $(this).prop('checked'); evaluateSettings(); });
+				$('#optionbox-5').change(function() { settings.fadeLabels = $(this).prop('checked'); evaluateSettings(); });
+				$('#optionbox-6').change(function() { settings.suggestReddits = $(this).prop('checked'); });
+				$('#optionbox-7').change(function() { settings.allowOtherSources = $(this).prop('checked'); });
+				$('#optionbox-9').change(function() { settings.nightMode = $(this).prop('checked'); evaluateSettings(); });
+
+				system.usedSettings = true;
+				return;
+			};
+
+			// Set Filter
+			if (target.sortFilter == 0) { target.sort = "/hot.json"; target.mode = "hot" } // hot / frontpage
+			else if (target.sortFilter == 1) { target.sort = "/top.json?sort=top&t=all"; target.mode = "top - ever" } // top of all time
+			else if (target.sortFilter == 2) { target.sort = "/new.json"; target.mode = "new" } // new
+			else if (target.sortFilter == 3) { target.sort = "/top.json?sort=top&t=year"; target.mode = "top - year"} // top of the year
+			else if (target.sortFilter == 4) { target.sort = "/top.json?sort=top&t=month"; target.mode = "top - month" } // top of the month
+			else { target.sort = "/hot.json"; target.mode = "hot" };
+
+			/* Set Page modifier
+			if (target.page > 0) {
+				target.pageModifier = "?count=" + target.page * 25;
+				console.log(target.pageModifier);
+			} else {
+				target.pageModifier = '';
+			}*/
+
+			target.subreddit = target.subreddit.replace("/r/", "");
+			document.title = target.subreddit + " - Reddit Crawler";			
+
+			target.url = "http://www.reddit.com/r/" + target.subreddit + target.sort;
+
+			// Check if it's a multireddit
+			if (~target.subreddit.indexOf("/m/")) {
+				target.subreddit = target.subreddit.replace("/user/", "").replace("/u/", "");
+				target.url = "http://www.reddit.com/user/" + target.subreddit + target.sort;
+				document.title = target.subreddit + " - Reddit Crawler";
+			};
+
+			target.xpostMentions.length = 0;
+			target.specialMode = false;
+			target.isNSFW = false;
+			target.slideshowLength = 0;
+			target.page = 0;
+			target.albumActive = false;
+			target.nofocusActive = true;
+			for (var member in target.albums) delete target.albums[member];
+			
+			target.counter = -1;
+
+			// Display "Loading" Dialogue
+			$('#results').html(' ').append('<div id="loader">Loading <span style="color: ' + getRandomColor() + '" class="prefixspan">/r/</span>' + target.subreddit + '<br><br>' + target.mode + '</div>');
+
+			// Start the AJAX Request
+			target.JSON = $.ajax({
+				method : "get",
+				url : target.url,
+				dataType : "json",
+
+				success : function(){
+					$('#loader').remove();
+					favoriteHandler(target.subreddit);
+
+					target.lastUrl = target.JSON.responseJSON.data.after;
+
+					for (var i = 0; i <= (target.JSON.responseJSON.data.children.length - 1); i++) {
+						
+
+						var postTitle = target.JSON.responseJSON.data.children[i].data.title;
+
+						// NSFW Check
+						if (!settings.showNSFW && target.JSON.responseJSON.data.children[i].data.over_18) {
+							$('#results').html(' ').append('<div id="loader">NSFW Content is blocked via <pre>options</pre></div>');
+							return;
+							break;
+						} else if (target.JSON.responseJSON.data.children[i].data.over_18) {
+							target.isNSFW = true;
+						};
+
+						// X-Post Scan
+						if(~postTitle.indexOf('r/')) {
+							var xpostName = postTitle.substr( (postTitle.indexOf('r/') + 2) , 999 );
+							xpostName = xpostName.split(' ')[0].split(')')[0].split(']')[0].replace(/\W/g, '');
+
+							if (xpostName != target.subreddit) {
+								target.xpostMentions.push(xpostName);
+							};
+						}
+
+						//target.newElement = 'null';
+
+						//Imgur Handling
+						if (target.JSON.responseJSON.data.children[i].data.domain == "i.imgur.com" || target.JSON.responseJSON.data.children[i].data.domain == "imgur.com") {
+							
+							var imgurEnding = target.JSON.responseJSON.data.children[i].data.url.split(".");
+							var imgurEndingLength = imgurEnding.length - 1;
+
+							if (imgurEnding[imgurEndingLength] == "gifv") {
+								appendImage(postTitle, "", "<video " + autoplayString + "loop='' muted='' preload='' poster='http://i.imgur.com/" + imgurEnding[imgurEndingLength - 1].substr(4) + ".jpg'><source src='http://i.imgur.com/" + imgurEnding[imgurEndingLength - 1].substr(4) + ".webm' type='video/webm'><source src='http://i.imgur.com/" + imgurEnding[imgurEndingLength - 1].substr(4) + ".mp4' type='video/mp4'></video>");
+							} else {
+								// Classic Image File
+
+								var imgurCode = target.JSON.responseJSON.data.children[i].data.url.replace("http://i.imgur.com/", "").replace("https://i.imgur.com/", "").replace("http://imgur.com/", "").replace("https://imgur.com/", "").replace("http://www.imgur.com/", "").replace("https://www.imgur.com/", "");
+
+								if (imgurCode.substr(0,2) == "a/") {
+									appendImage(postTitle, "", "", imgurCode.slice(2));
+								} else if (imgurCode.substr(0,8) == "gallery/") {
+								} else {
+									// Check if it hotlinks the image
+									if (imgurCode.split(".").length == 1) {
+										// Use .jpg as a universal ending (browser displays any image anyway)
+										imgurCode += ".jpg";
+									};
+									appendImage(postTitle, "http://i.imgur.com/" + imgurCode);
+								}
+							}
+						}
+
+						//Gfycat Handling
+						else if (target.JSON.responseJSON.data.children[i].data.domain == "gfycat.com" && settings.renderHtml5 == true) {
+							var gfycatUrl = target.JSON.responseJSON.data.children[i].data.url;
+							gfycatUrl = gfycatUrl.replace("http://gfycat.com/", "").replace("https://gfycat.com/", "").replace("http://www.gfycat.com/", "").replace("https://www.gfycat.com/", "");
+							appendImage(postTitle, "", "<video class='gfycat' data-gfyid='" + gfycatUrl + "' loop='' " + autoplayString + "muted='' preload='' poster='http://thumbs.gfycat.com/" + gfycatUrl + "-poster.jpg'></video>");
+						}
+
+						//Other JPG / PNG / GIF
+						else if (settings.allowOtherSources == true) {
+
+							var otherUrlBase = target.JSON.responseJSON.data.children[i].data.url;
+							var otherUrlEnding = otherUrlBase.substr(otherUrlBase.length - 3).toLowerCase();
+
+							
+							if (otherUrlEnding == "jpg" || otherUrlEnding == "png" || otherUrlEnding == "gif") {
+								appendImage(postTitle, target.JSON.responseJSON.data.children[i].data.url);
+							};
+						};
+					};
+
+					// Setup GFYs
+					setupGfy();
+					setupAlbum();
+
+					// Setup Slideshow Position
+					target.slideshowPosition = $('.image').eq(0).attr('data-id');
+					target.slideshowLength = $('.image').length;
+
+					// extendPage Card
+					$('<div/>', { class: 'panel-suggestion' , onclick : "extendPage()" }).html('Continue<br>Page ' + (target.page + 2) + '<br><span style="color: ' + getRandomColor() + ';" class="prefixspan">/r/</span>' + target.subreddit).appendTo('#results');
+
+					// Current Subreddit Info Card
+					if (target.mode != 'top - ever') {
+						$('<div/>', { class : 'panel-suggestion', onclick : "fetchJson('" + target.subreddit + " 1')" }).html('Switch to <br><span style="color: ' + getRandomColor() + ';" class="prefixspan">/r/</span>' + target.subreddit + '<br>top - ever').appendTo('#results');
+					} else {
+						$('<div/>', { class : 'panel-suggestion', onclick : "fetchJson('" + target.subreddit + " 4')" }).html('Switch to <br><span style="color: ' + getRandomColor() + ';" class="prefixspan">/r/</span>' + target.subreddit + '<br>top - month').appendTo('#results');
+					};
+
+					// Suggest Mentioned Subreddits - "Mentioned here"
+					for (var i = target.xpostMentions.length - 1; i >= 0; i--) {
+						$('<div/>', { class : 'panel-suggestion', onclick : "fetchJson('" + target.xpostMentions[i] + "')" }).html('Mentioned here<br><span style="color: ' + getRandomColor() + ';" class="prefixspan">/r/</span>' + target.xpostMentions[i]).appendTo('#results');
+					};
+
+					// Suggest Popular Subreddits - "Recommended"
+					if (settings.showNSFW && target.isNSFW) {
+						for (var i = getRandomInt(1,2); i >= 0; i--) {
+							var randomRecommendation = recommendationsNsfw[Math.floor(Math.random() * recommendationsNsfw.length)];
+
+							$('<div/>', { class : 'panel-suggestion', onclick : "fetchJson('" + randomRecommendation + "')" }).html('Recommended<br><span style="color: ' + getRandomColor() + ';" class="prefixspan">/r/</span>' + randomRecommendation).appendTo('#results');
+						};
+					} else {
+						for (var i = getRandomInt(1,2); i >= 0; i--) {
+							var randomRecommendation = recommendationsSfw[Math.floor(Math.random() * recommendationsSfw.length)];
+
+							$('<div/>', { class : 'panel-suggestion', onclick : "fetchJson('" + randomRecommendation + "')" }).html('Recommended<br><span style="color: ' + getRandomColor() + ';" class="prefixspan">/r/</span>' + randomRecommendation).appendTo('#results');
+						};
+					};
+
+					// Suggest Related Subreddits - "Also try"
+					if (settings.suggestReddits) {
+
+						relatedRedditJSON = $.getJSON("http://www.reddit.com/subreddits/search.json", 
+							{
+								q : target.subreddit,
+								limit : 4
+							}, function(){
+								var relatedRedditNames = [];
+								for (var i = relatedRedditJSON.responseJSON.data.children.length - 1; i >= 0; i--) {
+									if (relatedRedditJSON.responseJSON.data.children[i].data.display_name.toLowerCase() != target.subreddit.toLowerCase()) {
+										relatedRedditNames.push(relatedRedditJSON.responseJSON.data.children[i].data.display_name);
+									};
+								};		
+								for (var i = relatedRedditNames.length - 1; i >= 0; i--) {
+									$('<div/>', { class : 'panel-suggestion', onclick : "fetchJson('" + relatedRedditNames[i] + "')" }).html('Also try<br><span style="color: ' + getRandomColor() + ';" class="prefixspan">/r/</span>' + relatedRedditNames[i]).appendTo('#results');
+								};
+							}
+						);
+					};
+
+					$('.image').bind('click', function(){ setupSlideShow(this); });
+				},
+
+				error : function (x, status, error) {
+					$('#results').html(' ').append('<div id="loader">There was an error.<br><br><pre>' + error + '</pre></div>');
+					$('#subreddit-input').val('').focus();
+				}
+
+			});
+		}
+
+		function setupGfy() {
+			$('.gfycat').each(function(){
+				var instGfyElement = $(this);
+				var instGfyId = instGfyElement.data("gfyid");
+
+				var instGfyJson = $.ajax({
+					method : "get",
+					url : "http://gfycat.com/cajax/get/" + instGfyId,
+					dataType : "json",
+
+					success : function(){
+						var instGfyWebm = instGfyJson.responseJSON.gfyItem.webmUrl;
+						var instGfyMp4 = instGfyJson.responseJSON.gfyItem.mp4Url;
+						instGfyElement.append("<source src='" + instGfyWebm + "' type='video/webm'><source src='" + instGfyMp4 + "' type='video/mp4'>").removeClass('gfycat');
+					}
+				});
+			});
+		}
+
+		function appendImage(imageTitle, imageUrl, videoContent, albumID) {
+			if (videoContent && videoContent != "") {
+				var imageClass = "image-html5";
+				videoContent = "<span class='helper'></span>" + videoContent;
+			} else {
+				var imageClass = "";
+				var videoContent = "";
+			}
+
+			target.counter++;
+			var createdImage = $('<div/>', { class : 'image ' + imageClass, style : 'background-image : url(' + imageUrl + ')' }).html(videoContent + "<span class='title'>" + imageTitle  + "</span>").appendTo('#results');
+			if (target.counter == 0) {
+				$('#results .image').eq(0).addClass('nofocus');
+			};
+
+			if (albumID) {
+				createdImage.attr('data-albumid', albumID).addClass('image-album image-albumload');
+			};
+
+			createdImage.attr('data-id', target.counter);
+		}
+
+		function setupAlbum() {
+			$('.image-albumload').each(function(){
+				var instAlbumElement = $(this);
+				var instAlbumId = instAlbumElement.data("albumid");
+
+				var instAlbumJson = $.ajax({
+					method : "get",
+					url : "https://api.imgur.com/3/album/" + instAlbumId,
+					beforeSend: function (request)
+            		{
+            	    	request.setRequestHeader("Authorization", "Client-ID b103f734097df10");
+            		},
+					dataType : "json",
+
+					success : function(){
+						var instAlbumImage = instAlbumJson.responseJSON.data.images[0].id;
+						instAlbumElement.css({"background-image": "url(http://i.imgur.com/" + instAlbumImage + ".jpg)"}).removeClass('image-albumload');
+						target.albums["a" + instAlbumId] = new Array();
+						for (var i = instAlbumJson.responseJSON.data.images.length - 1; i >= 0; i--) {
+							target.albums["a" + instAlbumId].push(instAlbumJson.responseJSON.data.images[i].id);
+						};
+					}
+				});
+			});
+		}
+
+		function accessAlbum() {
+			if (target.albumActive) {
+				target.albumActive = false;
+				$('#album').removeClass('active');
+				$('#slideshow').removeClass('slideshow-blur');
+				return;
+			};
+
+			var instAlbumId = $('.image').eq(target.slideshowPosition).data("albumid");
+
+			if (instAlbumId) {
+				if (target.albums["a" + instAlbumId]) {
+					target.albumLength = target.albums["a" + instAlbumId].length;
+					target.albumActive = true;
+					$('#slideshow').addClass('slideshow-blur');
+					$('#album').html(' ').addClass('active');
+					target.albumPosition = 0;
+					for (var i = target.albums["a" + instAlbumId].length - 1; i >= 0; i--) {
+						$('#album').append("<div class='aimg' style='background-image:url(http://i.imgur.com/" + target.albums["a" + instAlbumId][i] + ".jpg)'></div>");
+					};
+					$('#album .aimg').eq(0).addClass('focus focus-firstalbum');
+					$('#album .aimg').eq(target.albumLength-1).addClass('focus-lastalbum');
+				} else {
+					// The Album is corrupted or missing. 
+					$('.image').eq(target.slideshowPosition).removeClass('image-album');
+					$('#slideshow .image-album').removeClass('image-album');
+					outputMessage("There was an error loading the Album");
+				};
+			};
+		}
+
+		function getRandomColor() {
+    		return "hsla(" + getRandomInt(80, 300) + ", 60%, 50%, 1)";
+		}
+
+		function getRandomInt(min, max) {
+		    return Math.floor(Math.random() * (max - min + 1)) + min;
+		}
+
+		$.fn.preload = function() {
+		    this.each(function(){
+		        $('<img/>')[0].src = this;
+		    });
+		}
+
+		function outputMessage(string) {
+			window.clearTimeout(system.messageTimer);
+			$('#message').text(string).addClass('message-visible');
+			system.messageTimer = setTimeout(function(){ $('#message').removeClass('message-visible'); }, 2000);
+		}
+
+		function evaluateSettings() {
+			if (settings.hugeImages) { $('body').addClass('hugeimages');} 
+			else { $('body').removeClass('hugeimages'); };
+
+			if (settings.fadeLabels) { $('body').addClass('smoothtransition');} 
+			else { $('body').removeClass('smoothtransition'); };
+
+			if (settings.nightMode) { $('body').addClass('nightmode');} 
+			else { $('body').removeClass('nightmode'); };
+
+		}
+
+		function setupSlideShow(position) {
+			if (target.slideshowActive || target.specialMode) { return; };
+
+			target.slideshowActive = true;
+			target.slideshowPosition = $(position).attr('data-id');
+			target.slideshowLength = $('.image').length;
+
+			var slideshowImage = $('#results .image').eq(target.slideshowPosition);
+			$('#slideshow').addClass('active').append(slideshowImage.clone());
+
+			$('#results, #wrapper').addClass('hidden');
+
+			// Note: $(something).eq(0) is the jQuery equivalent to something[0]
+			// Note2: $('something[data-id="x"]') does what it does 
+			// $('#results .image[data-id="' + target.slideshowPosition + '"]')
+		}
+
+		function switchSlideShow(backwards) {
+			// If neither the slideshow nor the highlighting is active, nothing happens
+			if (!target.slideshowActive && !target.highlightingActive) { return; };
+			if (target.albumActive) {
+				var oldSlideshowPosition = target.albumPosition;
+
+				if (backwards) {
+					target.albumPosition--;
+					if (target.albumPosition == -1) { target.albumPosition = (target.albumLength - 1); };
+				} else {
+					target.albumPosition++;
+					if (target.albumPosition >= target.albumLength) { target.albumPosition = 0; };
+				};
+
+				$('#album .focus').removeClass('focus');
+				$(window).scrollTop(($('#album .aimg').eq(target.albumPosition).offset().top));
+				$('#album .aimg').eq(target.albumPosition).addClass('focus');
+
+				return;
+			};
+
+			var oldSlideshowPosition = target.slideshowPosition;
+
+			if (backwards) {
+				target.slideshowPosition--;
+				if (target.slideshowPosition == -1) { target.slideshowPosition = (target.slideshowLength - 1); };
+			} else {
+				target.slideshowPosition++;
+				if (target.slideshowPosition >= target.slideshowLength) { target.slideshowPosition = 0; };
+			};
+
+			if (target.slideshowPosition == (target.slideshowLength - 1)) {
+				$('#results .image').eq(target.slideshowPosition).addClass('focus-nextpage');
+			}
+
+			if (!target.slideshowActive) {
+				// This is the blue highlighting mode
+				if (target.highlightingActive) {
+					$('#subreddit-input').blur();
+					$('.focus').removeClass('focus');
+					$(window).scrollTop(($('.image').eq(target.slideshowPosition).offset().top - 110));
+
+					$('#results .image').eq(target.slideshowPosition).addClass("focus");
+				};
+			} else {
+				$('#slideshow .image').remove();
+				var slideshowImage = $('#results .image').eq(target.slideshowPosition);
+				$('#slideshow').append(slideshowImage.clone());
+			}
+		}
+
+		function toggleHighlight(inverse) {
+			// No interaction when the slideshow is active
+			if (target.slideshowActive) { return; };
+
+			// Upon enabling highlighting
+			if (inverse) {
+				if (!target.highlightingActive) {
+					if (target.nofocusActive) {
+						target.nofocusActive = false;
+						$('.nofocus').removeClass('nofocus');
+					};
+					target.highlightingActive = true;
+					$('#subreddit-input').blur();
+					if ($('#subreddit-input').val() != target.rawinput) {
+						$('#subreddit-input').val(target.rawinput);
+					};
+					$('#results .image').eq(target.slideshowPosition).addClass('focus');
+					$(window).scrollTop(($('.image').eq(target.slideshowPosition).offset().top - 110));
+				};
+				return;
+			};
+
+			// Upon disabling highlighting
+			if (target.highlightingActive) {
+				target.highlightingActive = false;
+				$('#subreddit-input').focus().select();
+				$('.focus').removeClass('focus');
+			};
+		}
+
+		function quitSlideShow() {
+			if (target.albumActive) { return; };
+
+			target.slideshowActive = false;
+			target.highlightingActive = true;
+			$('#slideshow .image').remove();
+			$('#results, #wrapper').removeClass('hidden');
+			$('#slideshow').removeClass('active');
+			$('#subreddit-input').blur();
+
+			$('.focus').removeClass('focus');
+
+			$('#results .image').eq(target.slideshowPosition).addClass('focus');
+			$(window).scrollTop(($('.image').eq(target.slideshowPosition).offset().top - 110));
+		}
+
+		function favoriteHandler(name) {
+			var subExists = false;
+
+			for (var i = favorites.length - 1; i >= 0; i--) {
+				if (favorites[i][0] == name.toLowerCase()) {
+					favorites[i][1]++;
+					subExists = true;
+					break;
+				}
+			};
+
+			// Create new Entry
+			if (!subExists) {
+				favorites[favorites.length] = [name, 1];
+			};
+
+			// Sort the Array
+			favorites = favorites.sort(function(a,b) {
+			    return b[1] - a[1];
+			});
+		}
+
+		
+
+		$(function(){
+
+			// Intro Text
+			setTimeout(function(){
+				if (system.untouched) {
+					$('<div/>', { id: 'loader' }).html('Type <pre>help</pre> for more information').hide().appendTo('#results').fadeIn();
+				};
+			}, 5000);
+			setTimeout(function(){
+				if (system.untouched) {
+					$('#loader').fadeOut('400', function(){ 
+						$(this).remove();
+						$('<div/>', { id: 'loader' }).html('Type <pre>options</pre> to change your settings').hide().appendTo('#results').fadeIn();
+					});
+				};
+			}, 10000);
+			setTimeout(function(){
+				if (system.untouched) {
+					$('#loader').fadeOut('400', function(){ 
+						$(this).remove();
+						$('<div/>', { id: 'loader' }).html('Try <pre>aww</pre> or <pre>pics</pre> to start surfing').hide().appendTo('#results').fadeIn();
+					});
+				};
+			}, 15000);
+
+			// Key Listener
+			$(document).keydown(function(e) { 
+				if (e.which == 37) { switchSlideShow(true); } // Key Left
+				else if (e.which == 39 || e.which == 32) {
+					if (e.which == 32 && target.slideshowPosition == (target.slideshowLength - 1) && target.highlightingActive) { extendPage(true); e.preventDefault(); return; }; 
+					switchSlideShow(); 
+					if (target.highlightingActive) { e.preventDefault(); };
+				} // Space and Key Right
+				else if (e.which == 38) { if(target.slideshowActive) { accessAlbum(); /* Access album by pressing up when viewing an Album Slide */ } else { toggleHighlight(false); } e.preventDefault();  } // Key Up
+				else if (e.which == 40) { toggleHighlight(true); e.preventDefault(); } // Key Down
+				else if (target.slideshowActive) {
+					if (e.which == 27 || e.which == 17 || e.which == 18) { quitSlideShow(); }; // Escape or CTRL or ALT when the slideshow is active
+				} else if (!target.slideshowActive) {
+					if (e.which == 17 || e.which == 18) { setupSlideShow($('.image').eq(target.slideshowPosition)); }; // CTRL or ALT when its inactive
+				};
+				
+			});
+
+			// Image Preloading
+			$(['x.png','xl.png']).preload();
+
+			// When the user returns to the tab, the input field is immediately selected
+			$(window).on('focus', function() {
+				if (!target.slideshowActive) {
+					$('#subreddit-input').focus().select();
+				};
+			});
+
+			// Check Localstorage Settings
+			var retrievedObject = localStorage.getItem('settings');
+			var retrievedObject2 = localStorage.getItem('favorites');
+		
+			if (retrievedObject) {
+				settings = JSON.parse(retrievedObject);
+				evaluateSettings();
+			};
+
+			if (retrievedObject2) {
+				favorites = JSON.parse(retrievedObject2);
+				system.untouched = false;
+				$('#results').html('');
+				var panelsToDraw = 5;
+
+				for (var i = favorites.length - 1; i >= 0; i--) {
+					if (i == 6) break;
+					$('<div/>', { class : 'panel-suggestion panel-favorite', onclick : "fetchJson('" + favorites[i][0] + "')" }).html('<span style="color: ' + getRandomColor() + ';" class="prefixspan">/r/</span>' + favorites[i][0]).appendTo('#results');
+					panelsToDraw--;
+				};
+
+				for (var i = panelsToDraw; i >= 0; i--) {
+					$('<div/>', { class : 'panel-suggestion panel-favorite panel-disabled' }).html('').appendTo('#results');
+				};
+
+				$('<div/>', { class : 'panel-suggestion panel-favorite', onclick : "fetchJson('help')" }).html('help').appendTo('#results');
+				$('<div/>', { class : 'panel-suggestion panel-favorite', onclick : "fetchJson('options')" }).html('options').appendTo('#results');
+
+				$('.panel-suggestion:odd').each(function(){
+					$(this).after("<br>");
+				});
+				
+				document.title = "Reddit Crawler";
+				target.specialMode = true;
+
+			};
+
+			// Check Hash
+			//if(window.location.hash) {
+			//  fetchJson(window.location.hash.substr(3));
+			//}
+		});
+
+		
+
+		</script>
+	</head>
+	<body>
+
+		<div id="wrapper">
+			<form onsubmit="fetchJson(); return false;">
+				<input type="text" autofocus="true" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Enter a Subreddit" id="subreddit-input" onclick="toggleHighlight(false);">
+				<button>Go!</button>
+			</form>
+		</div>
+
+		<div id="results">
+			
+		</div>
+
+		<div id="slideshow">
+			<div id="exit" onclick="quitSlideShow()"></div><div id="slideshowoverlay" onclick="switchSlideShow()"></div>
+		</div>
+
+		<div id="album">
+			
+		</div>
+
+		<div id="message"></div>
+	</body>
+</html>
