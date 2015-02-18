@@ -373,6 +373,14 @@ body.nightmode #results .image:hover:after {
   border: 40px dashed rgba(153, 213, 255, 0.3);
 }
 
+#results .image.image-album.focus:before {
+  border-color: rgba(167, 255, 153, 0.3);
+}
+
+#results .image.image-html5.focus:before {
+  border-color: rgba(255, 153, 153, 0.3);
+}
+
 #results .image.focus:first-child:before {
   content: "Left and Right arrow to navigate";
   white-space: normal;
@@ -529,7 +537,8 @@ body.nightmode #exit {
 #album .aimg {
   display: inline-block;
   margin: 0vh 5vh 5vh 5vh;
-  min-width: 60vh;
+  width: 45%;
+  min-width: 80vh;
   box-sizing: border-box;
   height: 100vh;
   overflow: hidden;
