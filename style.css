@@ -534,6 +534,10 @@ body.nightmode #exit {
   background-color: rgba(30,30,30,0.85);
 }
 
+body.nightmode #album.active {
+  background-color: rgba(5, 9, 115, 0.52);
+}
+
 #album .aimg {
   display: inline-block;
   margin: 0vh 5vh 5vh 5vh;
