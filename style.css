@@ -535,7 +535,7 @@ body.nightmode #exit {
 }
 
 body.nightmode #album.active {
-  background-color: rgba(5, 9, 115, 0.52);
+  background-color: rgba(51, 42, 115, 0.52);
 }
 
 #album .aimg {
