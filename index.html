@@ -3,7 +3,6 @@
 		<title>Reddit Crawler</title>
 		<link rel="stylesheet" href="style.css">
 		<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
-		<script src="jquery.unveil.js"></script>
 		<script>
 
 		var target = {
@@ -36,9 +35,8 @@
 		var settings = {
 			renderHtml5 : true,
 			showNSFW : true,
-			autoplayHTML5 : true,
 			fadeLabels : false,
-			suggestReddits : true,
+			suggestReddits : false,
 			hugeImages : false,
 			allowOtherSources : true,
 			nightMode : false
@@ -94,71 +92,13 @@
 
 					target.lastUrl = target.JSON.responseJSON.data.after;
 
-					for (var i = 0; i <= (target.JSON.responseJSON.data.children.length - 1); i++) {
-						
-						var postTitle = target.JSON.responseJSON.data.children[i].data.title;
+					jsonRender(target.JSON.responseJSON.data.children);
 
-						// X-Post Scan
-						if(~postTitle.indexOf('r/')) {
-							var xpostName = postTitle.substr( (postTitle.indexOf('r/') + 2) , 999 );
-							xpostName = xpostName.split(' ')[0].split(')')[0].split(']')[0].replace(/\W/g, '');
-
-							if (xpostName != target.subreddit) {
-								target.xpostMentions.push(xpostName);
-							};
-						}
-
-						//Imgur Handling
-						if (target.JSON.responseJSON.data.children[i].data.domain == "i.imgur.com" || target.JSON.responseJSON.data.children[i].data.domain == "imgur.com") {
-							
-							var imgurEnding = target.JSON.responseJSON.data.children[i].data.url.split(".");
-							var imgurEndingLength = imgurEnding.length - 1;
-							if (imgurEnding[imgurEndingLength] == "gifv") {
-								// Imgur "GIFV" File
-								appendImage(postTitle, "", "<video " + autoplayString + "loop='' muted='' preload='' poster='http://i.imgur.com/" + imgurEnding[imgurEndingLength - 1].substr(4) + ".jpg'><source src='http://i.imgur.com/" + imgurEnding[imgurEndingLength - 1].substr(4) + ".webm' type='video/webm'><source src='http://i.imgur.com/" + imgurEnding[imgurEndingLength - 1].substr(4) + ".mp4' type='video/mp4'></video>");
-							} else {
-								// Classic Image File
-
-								var imgurCode = target.JSON.responseJSON.data.children[i].data.url.replace("http://i.imgur.com/", "").replace("https://i.imgur.com/", "").replace("http://imgur.com/", "").replace("https://imgur.com/", "").replace("http://www.imgur.com/", "").replace("https://www.imgur.com/", "");
-
-								if (imgurCode.substr(0,2) == "a/") {
-								} else if (imgurCode.substr(0,8) == "gallery/") {
-								} else {
-
-									if (imgurCode.split(".").length == 1) {
-										imgurCode += ".jpg";
-									};
-									appendImage(postTitle, "http://i.imgur.com/" + imgurCode);
-								}
-							}
-						}
-
-						//Gfycat Handling
-						else if (target.JSON.responseJSON.data.children[i].data.domain == "gfycat.com" && settings.renderHtml5 == true) {
-							
-							var gfycatUrl = target.JSON.responseJSON.data.children[i].data.url;
-							gfycatUrl = gfycatUrl.replace("http://gfycat.com/", "").replace("https://gfycat.com/", "").replace("http://www.gfycat.com/", "").replace("https://www.gfycat.com/", "");
-
-							appendImage(postTitle, "", "<video class='gfycat' data-gfyid='" + gfycatUrl + "' loop='' " + autoplayString + "muted='' preload='' poster='http://thumbs.gfycat.com/" + gfycatUrl + "-poster.jpg'></video>");
-						}
-
-						//Other JPG / PNG / GIF
-						else if (settings.allowOtherSources == true) {
-
-							var otherUrlBase = target.JSON.responseJSON.data.children[i].data.url;
-							var otherUrlEnding = otherUrlBase.substr(otherUrlBase.length - 3).toLowerCase();
-
-							if (otherUrlEnding == "jpg" || otherUrlEnding == "png" || otherUrlEnding == "gif") {
-								appendImage(postTitle, target.JSON.responseJSON.data.children[i].data.url);
-							};
-						};
-					};
-
-					// Setup GFYs
+					// Setup Routine
 					setupGfy();
 					setupAlbum();
 
-					// Refresh Slideshow Length
+					// Refresh Slideshow
 					target.slideshowLength = $('.image').length;
 
 					// Go to the next image if a callback is invoked
@@ -174,13 +114,10 @@
 						$('<div/>', { class : 'panel-suggestion', onclick : "fetchJson('" + target.subreddit + " 4')" }).html('Switch to <br><span style="color: ' + getRandomColor() + ';" class="prefixspan">/r/</span>' + target.subreddit + '<br>top - month').appendTo('#results');
 					}
 
-
-
 					// Suggest Mentioned Subreddits - "Mentioned here"
 					for (var i = target.xpostMentions.length - 1; i >= 0; i--) {
 						$('<div/>', { class : 'panel-suggestion', onclick : "fetchJson('" + target.xpostMentions[i] + "')" }).html('Mentioned here<br><span style="color: ' + getRandomColor() + ';" class="prefixspan">/r/</span>' + target.xpostMentions[i]).appendTo('#results');
 					};
-
 
 					// Suggest Popular Subreddits - "Recommended"
 					if (settings.showNSFW && target.isNSFW) {
@@ -216,6 +153,7 @@
 				} catch(err) {
 					system.cantSaveOptions = true;
 				}
+				system.usedSettings = false;
 			};
 
 			// Try to save the favorites
@@ -243,12 +181,6 @@
 
 			//Check for filter after subreddit name
 			if (target.subreddit.split(" ").length > 1) {
-
-				/*Check for page modifier after filter
-				if (target.subreddit.split(" ").length > 2) {
-					target.page = target.subreddit.split(" ")[2];
-				} else { target.page = 0; };*/
-
 				system.usedFilter = true;
 				target.sortFilter = target.subreddit.split(" ")[1];
 				target.subreddit = target.subreddit.split(" ")[0];
@@ -330,14 +262,6 @@
 			else if (target.sortFilter == 4) { target.sort = "/top.json?sort=top&t=month"; target.mode = "top - month" } // top of the month
 			else { target.sort = "/hot.json"; target.mode = "hot" };
 
-			/* Set Page modifier
-			if (target.page > 0) {
-				target.pageModifier = "?count=" + target.page * 25;
-				console.log(target.pageModifier);
-			} else {
-				target.pageModifier = '';
-			}*/
-
 			target.subreddit = target.subreddit.replace("/r/", "");
 			document.title = target.subreddit + " - Reddit Crawler";			
 
@@ -376,84 +300,13 @@
 
 					target.lastUrl = target.JSON.responseJSON.data.after;
 
-					for (var i = 0; i <= (target.JSON.responseJSON.data.children.length - 1); i++) {
-						
+					jsonRender(target.JSON.responseJSON.data.children);
 
-						var postTitle = target.JSON.responseJSON.data.children[i].data.title;
-
-						// NSFW Check
-						if (!settings.showNSFW && target.JSON.responseJSON.data.children[i].data.over_18) {
-							$('#results').html(' ').append('<div id="loader">NSFW Content is blocked via <pre>options</pre></div>');
-							return;
-							break;
-						} else if (target.JSON.responseJSON.data.children[i].data.over_18) {
-							target.isNSFW = true;
-						};
-
-						// X-Post Scan
-						if(~postTitle.indexOf('r/')) {
-							var xpostName = postTitle.substr( (postTitle.indexOf('r/') + 2) , 999 );
-							xpostName = xpostName.split(' ')[0].split(')')[0].split(']')[0].replace(/\W/g, '');
-
-							if (xpostName != target.subreddit) {
-								target.xpostMentions.push(xpostName);
-							};
-						}
-
-						//target.newElement = 'null';
-
-						//Imgur Handling
-						if (target.JSON.responseJSON.data.children[i].data.domain == "i.imgur.com" || target.JSON.responseJSON.data.children[i].data.domain == "imgur.com") {
-							
-							var imgurEnding = target.JSON.responseJSON.data.children[i].data.url.split(".");
-							var imgurEndingLength = imgurEnding.length - 1;
-
-							if (imgurEnding[imgurEndingLength] == "gifv") {
-								appendImage(postTitle, "", "<video " + autoplayString + "loop='' muted='' preload='' poster='http://i.imgur.com/" + imgurEnding[imgurEndingLength - 1].substr(4) + ".jpg'><source src='http://i.imgur.com/" + imgurEnding[imgurEndingLength - 1].substr(4) + ".webm' type='video/webm'><source src='http://i.imgur.com/" + imgurEnding[imgurEndingLength - 1].substr(4) + ".mp4' type='video/mp4'></video>");
-							} else {
-								// Classic Image File
-
-								var imgurCode = target.JSON.responseJSON.data.children[i].data.url.replace("http://i.imgur.com/", "").replace("https://i.imgur.com/", "").replace("http://imgur.com/", "").replace("https://imgur.com/", "").replace("http://www.imgur.com/", "").replace("https://www.imgur.com/", "");
-
-								if (imgurCode.substr(0,2) == "a/") {
-									appendImage(postTitle, "", "", imgurCode.slice(2));
-								} else if (imgurCode.substr(0,8) == "gallery/") {
-								} else {
-									// Check if it hotlinks the image
-									if (imgurCode.split(".").length == 1) {
-										// Use .jpg as a universal ending (browser displays any image anyway)
-										imgurCode += ".jpg";
-									};
-									appendImage(postTitle, "http://i.imgur.com/" + imgurCode);
-								}
-							}
-						}
-
-						//Gfycat Handling
-						else if (target.JSON.responseJSON.data.children[i].data.domain == "gfycat.com" && settings.renderHtml5 == true) {
-							var gfycatUrl = target.JSON.responseJSON.data.children[i].data.url;
-							gfycatUrl = gfycatUrl.replace("http://gfycat.com/", "").replace("https://gfycat.com/", "").replace("http://www.gfycat.com/", "").replace("https://www.gfycat.com/", "");
-							appendImage(postTitle, "", "<video class='gfycat' data-gfyid='" + gfycatUrl + "' loop='' " + autoplayString + "muted='' preload='' poster='http://thumbs.gfycat.com/" + gfycatUrl + "-poster.jpg'></video>");
-						}
-
-						//Other JPG / PNG / GIF
-						else if (settings.allowOtherSources == true) {
-
-							var otherUrlBase = target.JSON.responseJSON.data.children[i].data.url;
-							var otherUrlEnding = otherUrlBase.substr(otherUrlBase.length - 3).toLowerCase();
-
-							
-							if (otherUrlEnding == "jpg" || otherUrlEnding == "png" || otherUrlEnding == "gif") {
-								appendImage(postTitle, target.JSON.responseJSON.data.children[i].data.url);
-							};
-						};
-					};
-
-					// Setup GFYs
+					// Setup Routine
 					setupGfy();
 					setupAlbum();
 
-					// Setup Slideshow Position
+					// Setup Slideshow
 					target.slideshowPosition = $('.image').eq(0).attr('data-id');
 					target.slideshowLength = $('.image').length;
 
@@ -517,6 +370,80 @@
 				}
 
 			});
+		}
+
+		function jsonRender(dataChildren) {
+			for (var i = 0; i <= (dataChildren.length - 1); i++) {
+
+				var postTitle = dataChildren[i].data.title;
+
+				// NSFW Check
+				if (!settings.showNSFW && dataChildren[i].data.over_18) {
+					$('#results').html(' ').append('<div id="loader">NSFW Content is blocked via <pre>options</pre></div>');
+					return;
+					break;
+				} else if (dataChildren[i].data.over_18) {
+					target.isNSFW = true;
+				};
+
+				// X-Post Scan
+				if(~postTitle.indexOf('r/')) {
+					var xpostName = postTitle.substr( (postTitle.indexOf('r/') + 2) , 999 );
+					xpostName = xpostName.split(' ')[0].split(')')[0].split(']')[0].replace(/\W/g, '');
+
+					if (xpostName != target.subreddit) {
+						target.xpostMentions.push(xpostName);
+					};
+				}
+
+				//target.newElement = 'null';
+
+				//Imgur Handling
+				if (dataChildren[i].data.domain == "i.imgur.com" || dataChildren[i].data.domain == "imgur.com") {
+					
+					var imgurEnding = dataChildren[i].data.url.split(".");
+					var imgurEndingLength = imgurEnding.length - 1;
+
+					if (imgurEnding[imgurEndingLength] == "gifv") {
+						appendImage(postTitle, "", "<video " + autoplayString + "loop='' muted='' preload='' poster='http://i.imgur.com/" + imgurEnding[imgurEndingLength - 1].substr(4) + ".jpg'><source src='http://i.imgur.com/" + imgurEnding[imgurEndingLength - 1].substr(4) + ".webm' type='video/webm'><source src='http://i.imgur.com/" + imgurEnding[imgurEndingLength - 1].substr(4) + ".mp4' type='video/mp4'></video>");
+					} else {
+						// Classic Image File
+
+						var imgurCode = dataChildren[i].data.url.replace("http://i.imgur.com/", "").replace("https://i.imgur.com/", "").replace("http://imgur.com/", "").replace("https://imgur.com/", "").replace("http://www.imgur.com/", "").replace("https://www.imgur.com/", "");
+
+						if (imgurCode.substr(0,2) == "a/") {
+							appendImage(postTitle, "", "", imgurCode.slice(2));
+						} else if (imgurCode.substr(0,8) == "gallery/") {
+						} else {
+							// Check if it hotlinks the image
+							if (imgurCode.split(".").length == 1) {
+								// Use .jpg as a universal ending (browser displays any image anyway)
+								imgurCode += ".jpg";
+							};
+							appendImage(postTitle, "http://i.imgur.com/" + imgurCode);
+						}
+					}
+				}
+
+				//Gfycat Handling
+				else if (dataChildren[i].data.domain == "gfycat.com" && settings.renderHtml5 == true) {
+					var gfycatUrl = dataChildren[i].data.url;
+					gfycatUrl = gfycatUrl.replace("http://gfycat.com/", "").replace("https://gfycat.com/", "").replace("http://www.gfycat.com/", "").replace("https://www.gfycat.com/", "");
+					appendImage(postTitle, "", "<video class='gfycat' data-gfyid='" + gfycatUrl + "' loop='' " + autoplayString + "muted='' preload='' poster='http://thumbs.gfycat.com/" + gfycatUrl + "-poster.jpg'></video>");
+				}
+
+				//Other JPG / PNG / GIF
+				else if (settings.allowOtherSources == true) {
+
+					var otherUrlBase = dataChildren[i].data.url;
+					var otherUrlEnding = otherUrlBase.substr(otherUrlBase.length - 3).toLowerCase();
+
+					
+					if (otherUrlEnding == "jpg" || otherUrlEnding == "png" || otherUrlEnding == "gif") {
+						appendImage(postTitle, dataChildren[i].data.url);
+					};
+				};
+			};
 		}
 
 		function setupGfy() {
@@ -681,7 +608,7 @@
 				};
 
 				$('#album .focus').removeClass('focus');
-				$(window).scrollTop(($('#album .aimg').eq(target.albumPosition).offset().top));
+				$(window).scrollTop(Math.round(($('#album .aimg').eq(target.albumPosition).offset().top)));
 				$('#album .aimg').eq(target.albumPosition).addClass('focus');
 
 				return;
@@ -706,7 +633,7 @@
 				if (target.highlightingActive) {
 					$('#subreddit-input').blur();
 					$('.focus').removeClass('focus');
-					$(window).scrollTop(($('.image').eq(target.slideshowPosition).offset().top - 110));
+					$(window).scrollTop(Math.round($('.image').eq(target.slideshowPosition).offset().top - 110));
 
 					$('#results .image').eq(target.slideshowPosition).addClass("focus");
 				};
@@ -734,7 +661,7 @@
 						$('#subreddit-input').val(target.rawinput);
 					};
 					$('#results .image').eq(target.slideshowPosition).addClass('focus');
-					$(window).scrollTop(($('.image').eq(target.slideshowPosition).offset().top - 110));
+					$(window).scrollTop(Math.round($('.image').eq(target.slideshowPosition).offset().top - 110));
 				};
 				return;
 			};
@@ -769,7 +696,7 @@
 			$('.focus').removeClass('focus');
 
 			$('#results .image').eq(target.slideshowPosition).addClass('focus');
-			$(window).scrollTop(($('.image').eq(target.slideshowPosition).offset().top - 110));
+			$(window).scrollTop(Math.round($('.image').eq(target.slideshowPosition).offset().top - 110));
 		}
 
 		function favoriteHandler(name) {

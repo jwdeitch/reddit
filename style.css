@@ -16,6 +16,12 @@ body {
   -webkit-font-smoothing: antialiased;
   color: #555;
   background-color: #ffffff;
+
+  -webkit-perspective: 1000;
+  -moz-perspective: 1000;
+  -ms-perspective: 1000;
+  -o-perspective: 1000;
+  perspective: 1000;
 }
 
 body.nightmode {
@@ -151,6 +157,12 @@ body.nightmode :-ms-input-placeholder { /* Internet Explorer 10+ */
 	width: 100%;
 	left: 0;
 	right: 0;
+
+  -webkit-transform: translateZ(0);
+  -moz-transform: translateZ(0);
+  -ms-transform: translateZ(0);
+  -o-transform: translateZ(0);
+  transform: translateZ(0);
 }
 
 #results.hidden {
