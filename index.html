@@ -146,6 +146,13 @@
 		}
 
 		function fetchJson(subredditOverwrite) {
+
+			try {
+			    window.stop();
+			} catch(e) {
+			    document.execCommand('Stop');
+			}
+
 			// Try to save Settings
 			if (system.usedSettings) { 
 				try {
@@ -189,6 +196,7 @@
 				target.sortFilter = 0;
 			}
 
+			// Check if there is no input, if so, cancel everything and display the "Home Page"
 			if (target.subreddit == "") {
 				$('#results').html(' ');
 				var panelsToDraw = 5;
@@ -212,6 +220,12 @@
 				
 				document.title = "Reddit Crawler";
 				target.specialMode = true;
+				return;
+			}
+
+			// Enter a random sub
+			if (target.subreddit.toLowerCase() == "#") {
+				fetchJson(recommendationsNsfw[getRandomInt(0, (recommendationsNsfw.length - 1))]);
 				return;
 			}
 
@@ -635,7 +649,7 @@
 					$('.focus').removeClass('focus');
 					$(window).scrollTop(Math.round($('.image').eq(target.slideshowPosition).offset().top - 110));
 
-					$('#results .image').eq(target.slideshowPosition).addClass("focus");
+					$('#results .image').eq(target.slideshowPosition).addClass("focus").removeClass('nofocus');
 				};
 			} else {
 				$('#slideshow .image').remove();
