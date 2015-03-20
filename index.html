@@ -225,13 +225,18 @@
 
 			// Enter a random sub
 			if (target.subreddit.toLowerCase() == "#") {
-				fetchJson(recommendationsNsfw[getRandomInt(0, (recommendationsNsfw.length - 1))]);
-				return;
+				if (settings.showNSFW) {
+					fetchJson(recommendationsNsfw[getRandomInt(0, (recommendationsNsfw.length - 1))]);
+					return;
+				} else {
+					fetchJson(recommendationsSfw[getRandomInt(0, (recommendationsSfw.length - 1))]);
+					return;
+				}
 			}
 
 			//Check if "Help" is used, if so, cancel everything and display the Help module
 			if (target.subreddit.toLowerCase() == "help" || target.subreddit.toLowerCase() == "?") {
-				$('#results').html(' ').append('<div class="panel panel-help"><h1>Help</h1><br><pre>CTRL</pre> or <pre>ALT</pre><span>Enter / Exit Slideshow</span><br><pre>&larr;</pre> <pre>&rarr;</pre><span>Switch images</span><br><pre>&uarr;</pre> <pre>&darr;</pre><span>Switch between text and images</span><br><pre>&uarr;</pre> <span>During Slideshow - Access Album</span><br><pre>F11</pre><span>Fullscreen</span><br><br>Press space when highlighting the last image to load the next page.<br><br>Enter <pre>options</pre> to change your settings.<br><br>Append a number to the subreddit to filter:<br><br><pre>0</pre> - Hot (default)<br><pre>1</pre> - Top of all Time<br><pre>2</pre> - New<br><pre>3</pre> - Top of the Year<br><pre>4</pre> - Top of the Month<br><br><pre>cats 3</pre> for the best cats of the year<br><pre>gif 1</pre> for the best GIFs of all time.<br><br>Visit <a href="http://github.com/cetigo/reddit" target="_blank">github</a> for more details.<br><br></div>');
+				$('#results').html(' ').append('<div class="panel panel-help"><h1>Help</h1><br><pre>CTRL</pre> or <pre>ALT</pre><span>Enter / Exit Slideshow</span><br><pre>&larr;</pre> <pre>&rarr;</pre><span>Switch images</span><br><pre>&uarr;</pre> <pre>&darr;</pre><span>Switch between text and images</span><br><pre>&uarr;</pre> <span>During Slideshow - Access Album</span><br><pre>F11</pre><span>Fullscreen</span><br><br>Press space when highlighting the last image to load the next page.<br><br>Enter <pre>options</pre> to change your settings.<br><br>Append a number to the subreddit to filter:<br><br><pre>0</pre> - Hot (default)<br><pre>1</pre> - Top of all Time<br><pre>2</pre> - New<br><pre>3</pre> - Top of the Year<br><pre>4</pre> - Top of the Month<br><br><pre>cats 3</pre> for the best cats of the year<br><pre>gif 1</pre> for the best GIFs of all time.<br><br>Just enter <pre>#</pre> for a random NSFW or SFW subreddit (depending on your settings)<br><br>Visit <a href="http://github.com/cetigo/reddit" target="_blank">github</a> for more details.<br><br></div>');
 				document.title = "Help - Reddit Crawler";
 				target.specialMode = true;
 				return;
@@ -310,11 +315,16 @@
 
 				success : function(){
 					$('#loader').remove();
-					favoriteHandler(target.subreddit);
 
 					target.lastUrl = target.JSON.responseJSON.data.after;
 
 					jsonRender(target.JSON.responseJSON.data.children);
+
+					if (target.isNSFW && !settings.showNSFW) {
+						return;
+					};
+
+					favoriteHandler(target.subreddit);
 
 					// Setup Routine
 					setupGfy();
@@ -391,14 +401,14 @@
 
 				var postTitle = dataChildren[i].data.title;
 
-				// NSFW Check
-				if (!settings.showNSFW && dataChildren[i].data.over_18) {
-					$('#results').html(' ').append('<div id="loader">NSFW Content is blocked via <pre>options</pre></div>');
-					return;
-					break;
-				} else if (dataChildren[i].data.over_18) {
+				if (dataChildren[i].data.over_18 && !target.isNSFW) {
 					target.isNSFW = true;
 				};
+
+				if (!settings.showNSFW && target.isNSFW) {
+					$('#results').html(' ').append('<div id="loader">NSFW Content is blocked via <pre>options</pre></div>');
+					return;
+				}
 
 				// X-Post Scan
 				if(~postTitle.indexOf('r/')) {
@@ -409,8 +419,6 @@
 						target.xpostMentions.push(xpostName);
 					};
 				}
-
-				//target.newElement = 'null';
 
 				//Imgur Handling
 				if (dataChildren[i].data.domain == "i.imgur.com" || dataChildren[i].data.domain == "imgur.com") {
