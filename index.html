@@ -281,7 +281,15 @@
 			else if (target.sortFilter == 4) { target.sort = "/top.json?sort=top&t=month"; target.mode = "top - month" } // top of the month
 			else { target.sort = "/hot.json"; target.mode = "hot" };
 
-			target.subreddit = target.subreddit.replace("/r/", "");
+			if (~target.subreddit.indexOf("/r/")) {
+				target.subreddit = target.subreddit.replace("/r/", "");
+				if (target.sortFilter != 0) {
+					$('#subreddit-input').val(target.subreddit + ' ' + target.sortFilter);
+				} else {
+					$('#subreddit-input').val(target.subreddit);
+				}
+			};
+			
 			document.title = target.subreddit + " - Reddit Crawler";			
 
 			target.url = "http://www.reddit.com/r/" + target.subreddit + target.sort;
