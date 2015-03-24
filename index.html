@@ -51,7 +51,7 @@
 			messageTimer : true
 		};
 
-		var history = {
+		var historyTrack = {
 			array: [],
 			position: 0 
 		};
@@ -94,13 +94,6 @@
 
 					jsonRender(target.JSON.responseJSON.data.children);
 
-					// Setup Routine
-					setupGfy();
-					setupAlbum();
-
-					// Refresh Slideshow
-					target.slideshowLength = $('.image').length;
-
 					// Go to the next image if a callback is invoked
 					if (invokeCallback) { switchSlideShow(); };
 
@@ -133,8 +126,6 @@
 							$('<div/>', { class : 'panel-suggestion', onclick : "fetchJson('" + randomRecommendation + "')" }).html('Recommended<br><span style="color: ' + getRandomColor() + ';" class="prefixspan">/r/</span>' + randomRecommendation).appendTo('#results');
 						};
 					};
-
-					$('.image').bind('click', function(){ setupSlideShow(this); });
 				},
 
 				error : function (x, status, error) {
@@ -196,6 +187,8 @@
 				target.sortFilter = 0;
 			}
 
+			target.specialMode = true;
+
 			// Check if there is no input, if so, cancel everything and display the "Home Page"
 			if (target.subreddit == "") {
 				$('#results').html(' ');
@@ -219,7 +212,6 @@
 				})
 				
 				document.title = "Reddit Crawler";
-				target.specialMode = true;
 				return;
 			}
 
@@ -238,7 +230,6 @@
 			if (target.subreddit.toLowerCase() == "help" || target.subreddit.toLowerCase() == "?") {
 				$('#results').html(' ').append('<div class="panel panel-help"><h1>Help</h1><br><pre>CTRL</pre> or <pre>ALT</pre><span>Enter / Exit Slideshow</span><br><pre>&larr;</pre> <pre>&rarr;</pre><span>Switch images</span><br><pre>&uarr;</pre> <pre>&darr;</pre><span>Switch between text and images</span><br><pre>&uarr;</pre> <span>During Slideshow - Access Album</span><br><pre>F11</pre><span>Fullscreen</span><br><br>Press space when highlighting the last image to load the next page.<br><br>Enter <pre>options</pre> to change your settings.<br><br>Append a number to the subreddit to filter:<br><br><pre>0</pre> - Hot (default)<br><pre>1</pre> - Top of all Time<br><pre>2</pre> - New<br><pre>3</pre> - Top of the Year<br><pre>4</pre> - Top of the Month<br><br><pre>cats 3</pre> for the best cats of the year<br><pre>gif 1</pre> for the best GIFs of all time.<br><br>Just enter <pre>#</pre> for a random NSFW or SFW subreddit (depending on your settings)<br><br>Visit <a href="http://github.com/cetigo/reddit" target="_blank">github</a> for more details.<br><br></div>');
 				document.title = "Help - Reddit Crawler";
-				target.specialMode = true;
 				return;
 			};
 
@@ -251,7 +242,6 @@
 				};
 
 				document.title = "Options - Reddit Crawler";
-				target.specialMode = true;
 
 				if (settings.renderHtml5) { $('#optionbox-2').prop('checked', true); };
 				if (settings.showNSFW) { $('#optionbox-3').prop('checked', true); };
@@ -302,7 +292,6 @@
 			};
 
 			target.xpostMentions.length = 0;
-			target.specialMode = false;
 			target.isNSFW = false;
 			target.slideshowLength = 0;
 			target.page = 0;
@@ -326,21 +315,13 @@
 
 					target.lastUrl = target.JSON.responseJSON.data.after;
 
-					jsonRender(target.JSON.responseJSON.data.children);
+					jsonRender(target.JSON.responseJSON.data.children, true);
 
 					if (target.isNSFW && !settings.showNSFW) {
 						return;
 					};
 
 					favoriteHandler(target.subreddit);
-
-					// Setup Routine
-					setupGfy();
-					setupAlbum();
-
-					// Setup Slideshow
-					target.slideshowPosition = $('.image').eq(0).attr('data-id');
-					target.slideshowLength = $('.image').length;
 
 					// extendPage Card
 					$('<div/>', { class: 'panel-suggestion' , onclick : "extendPage()" }).html('Continue<br>Page ' + (target.page + 2) + '<br><span style="color: ' + getRandomColor() + ';" class="prefixspan">/r/</span>' + target.subreddit).appendTo('#results');
@@ -392,8 +373,6 @@
 							}
 						);
 					};
-
-					$('.image').bind('click', function(){ setupSlideShow(this); });
 				},
 
 				error : function (x, status, error) {
@@ -404,7 +383,9 @@
 			});
 		}
 
-		function jsonRender(dataChildren) {
+		function jsonRender(dataChildren, doResetSP) {
+			target.specialMode = false;
+
 			for (var i = 0; i <= (dataChildren.length - 1); i++) {
 
 				var postTitle = dataChildren[i].data.title;
@@ -474,6 +455,16 @@
 					};
 				};
 			};
+
+			setupGfy();
+			setupAlbum();
+
+			if (doResetSP) {
+				target.slideshowPosition = $('.image').eq(0).attr('data-id');
+			};
+			target.slideshowLength = $('.image').length;
+
+			$('.image').bind('click', function(){ setupSlideShow(this); });
 		}
 
 		function setupGfy() {
@@ -675,8 +666,8 @@
 		}
 
 		function toggleHighlight(inverse) {
-			// No interaction when the slideshow is active
-			if (target.slideshowActive) { return; };
+			// No interaction when the slideshow is active or in special mode
+			if (target.slideshowActive || target.specialMode) { return; };
 
 			// Upon enabling highlighting
 			if (inverse) {
@@ -698,14 +689,14 @@
 
 			// Upon disabling highlighting
 			if (target.highlightingActive) {
-				history.position = 0;
+				historyTrack.position = 0;
 				target.highlightingActive = false;
 				$('#subreddit-input').focus().select();
 				$('.focus').removeClass('focus');
 			} else {
-				history.position++;
+				historyTrack.position++;
 
-				var historyNew = history.array[history.array.length- (1 + history.position)];
+				var historyNew = historyTrack.array[historyTrack.array.length- (1 + historyTrack.position)];
 
 				if (historyNew) {
 					$('#subreddit-input').val(historyNew).select();
@@ -724,6 +715,7 @@
 			$('#subreddit-input').blur();
 
 			$('.focus').removeClass('focus');
+			$('.nofocus').removeClass('nofocus');
 
 			$('#results .image').eq(target.slideshowPosition).addClass('focus');
 			$(window).scrollTop(Math.round($('.image').eq(target.slideshowPosition).offset().top - 110));
@@ -732,7 +724,7 @@
 		function favoriteHandler(name) {
 			var subExists = false;
 
-			history.array[history.array.length] = name;
+			historyTrack.array[historyTrack.array.length] = name;
 
 			for (var i = favorites.length - 1; i >= 0; i--) {
 				if (favorites[i][0] == name.toLowerCase()) {
@@ -848,7 +840,6 @@
 				});
 				
 				document.title = "Reddit Crawler";
-				target.specialMode = true;
 
 			};
 
