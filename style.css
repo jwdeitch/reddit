@@ -297,6 +297,18 @@ body.hugeimages #results .image {
   	width: 180px;
 }
 
+#results .panel.panel-options .reset {
+  background-color: #FFB0A9;
+}
+
+#results .panel.panel-options .reset:checked {
+  background-color: #F99;
+  background-image: -webkit-linear-gradient(-90deg, #F99 0%, #F66 100%);
+  background-image: -moz-linear-gradient(-90deg, #F99 0%, #F66 100%);
+  background-image: -o-linear-gradient(-90deg, #F99 0%, #F66 100%);
+  background-image: linear-gradient(-90deg, #F99 0%, #F66 100%);
+}
+
 #results .panel-suggestion {
 	font-size: 28px;
   font-weight: 100;

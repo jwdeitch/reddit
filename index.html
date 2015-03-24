@@ -226,16 +226,24 @@
 				}
 			}
 
-			//Check if "Help" is used, if so, cancel everything and display the Help module
-			if (target.subreddit.toLowerCase() == "help" || target.subreddit.toLowerCase() == "?") {
-				$('#results').html(' ').append('<div class="panel panel-help"><h1>Help</h1><br><pre>CTRL</pre> or <pre>ALT</pre><span>Enter / Exit Slideshow</span><br><pre>&larr;</pre> <pre>&rarr;</pre><span>Switch images</span><br><pre>&uarr;</pre> <pre>&darr;</pre><span>Switch between text and images</span><br><pre>&uarr;</pre> <span>During Slideshow - Access Album</span><br><pre>F11</pre><span>Fullscreen</span><br><br>Press space when highlighting the last image to load the next page.<br><br>Enter <pre>options</pre> to change your settings.<br><br>Append a number to the subreddit to filter:<br><br><pre>0</pre> - Hot (default)<br><pre>1</pre> - Top of all Time<br><pre>2</pre> - New<br><pre>3</pre> - Top of the Year<br><pre>4</pre> - Top of the Month<br><br><pre>cats 3</pre> for the best cats of the year<br><pre>gif 1</pre> for the best GIFs of all time.<br><br>Just enter <pre>#</pre> for a random NSFW or SFW subreddit (depending on your settings)<br><br>Visit <a href="http://github.com/cetigo/reddit" target="_blank">github</a> for more details.<br><br></div>');
+			//Check if "Help 1" is used, if so, cancel everything and display the Advanced Help module
+			if (target.subreddit.toLowerCase() == "help" && target.sortFilter == 1) {
+				$('#results').html(' ').append('<div class="panel panel-help"><h1>Advanced</h1><br><!--<h2>Options</h2><b>Show NSFW content</b><br>If turned off, every subreddit containing NSFW images will be blocked from your view and history.<br><br><b>Suggest Subreddits</b><br>Search Reddit for subreddits that are similar to the current one.<br><br><b>Render HTML5 Video</b><br>If turned off, Gfys and Imgur gifvs won\'t be rendered. This can drastically improve performance on weak hardware.<br><br><b>Allow all Sources</b><br>If turned off, only imgur and gfycat links will be rendered.<br><br><b>Smooth Labels</b><br>Activate for smoothly fading hover labels. This might be taxing for weak hardware.<br><br><br>--><h2>Technical Details</h2>Reddit Crawler works by pulling data from Reddits API via AJAX calls from your client, there is no server-side code. Therefore, it is only limited by your hardware and connection speed.<br><br>The high amount of parallel image and video downloads is rather data heavy. Reddit Crawler tries to cancel all current HTTP requests whenever a new subreddit is being loaded, but not all browsers support this. If your browser slows down to a halt when you spam requests, consider switching from Internet Explorer.<br><br>There is no inherent page or image cap, but all browsers limit memory usage somewhere. This can lead to unloading of images and lag once you go beyond a certain page count. However, if you never leave Slideshow view, most browsers should be able to handle virtually unlimited pages.<br><br><h2>View Reddit Crawler on <a href="https://github.com/cetigo/reddit" target="_blank">Github</a></h2></div>');
 				document.title = "Help - Reddit Crawler";
 				return;
-			};
+			}
+
+			//Check if "Help" is used, if so, cancel everything and display the Help module
+			if (target.subreddit.toLowerCase() == "help" || target.subreddit == "?") {
+				$('#results').html(' ').append('<div class="panel panel-help"><h1>Help</h1><br><pre>CTRL</pre> or <pre>ALT</pre><span>Enter / Exit Slideshow</span><br><pre>&larr;</pre> <pre>&rarr;</pre><span>Switch images</span><br><pre>&uarr;</pre> <pre>&darr;</pre><span>Switch between text and images</span><br><pre>&uarr;</pre> <span>During Slideshow - Access Album</span><br><br>Enter <pre>options</pre> to change your settings.<br><br>Append a number to the subreddit to filter:<br><br><pre>cats 1</pre> - Top of all Time<br><pre>cats 2</pre> - New<br><pre>cats 3</pre> - Top of the Year<br><pre>cats 4</pre> - Top of the Month<br><br>Just enter <pre>#</pre> for a random subreddit (depending on your NSFW settings).<br><br><div onclick="fetchJson(\'help 1\')">Read more.</div></div>');
+				document.title = "Help - Reddit Crawler";
+				return;
+			}
+			
 
 			//Check if "Options" is used, if so, cancel everything, display the Options module and set up the listeners
 			if (target.subreddit.toLowerCase() == "options") {
-				$('#results').html(' ').append('<div class="panel panel-options"><h1>Options</h1><br><br><h2>General</h2><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-3"><h6>Show NSFW Content</h6></div><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-4"><h6>Huge Images</h6></div><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-6"><h6>Suggest Subreddits</h6></div><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-9"><h6>Night Mode</h6></div><h2>Performance</h2><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-2"><h6>Render HTML5 Video</h6></div><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-5"><h6>Smooth Labels</h6></div><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-7"><h6>Allow all Sources</h6></div><div class="options-box"><input type="checkbox" class="uiswitch" disabled="" id="optionbox-8"><h6>Use Lazy Loading</h6></div></div>');
+				$('#results').html(' ').append('<div class="panel panel-options"><h1>Options</h1><br><br><h2>General</h2><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-3"><h6>Show NSFW Content</h6></div><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-4"><h6>Huge Images</h6></div><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-6"><h6>Suggest Subreddits</h6></div><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-9"><h6>Night Mode</h6></div><h2>Performance</h2><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-2"><h6>Render HTML5 Video</h6></div><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-5"><h6>Smooth Labels</h6></div><div class="options-box"><input type="checkbox" class="uiswitch" id="optionbox-7"><h6>Allow all Sources</h6></div><div class="options-box"><input type="checkbox" class="uiswitch reset" id="optionbox-reset" onclick="clearHistory()"><h6 id="optionspan-reset">Reset History</h6></div></div>');
 
 				if (system.cantSaveOptions) {
 					$('.panel-options').append("<br><br>We're sorry, but we can't permanently save your settings. Usually this is caused by surfing in Private Mode.<br><br>");
@@ -719,6 +727,23 @@
 
 			$('#results .image').eq(target.slideshowPosition).addClass('focus');
 			$(window).scrollTop(Math.round($('.image').eq(target.slideshowPosition).offset().top - 110));
+		}
+
+		function clearHistory() {
+			historyTrack.array.length = 0;
+			favorites.length = 0;
+			$('#optionspan-reset').text('...');
+
+			try {
+				localStorage.setItem('favorites', JSON.stringify(favorites)); 
+			} catch(err) {
+				system.cantSaveOptions = true;
+			};
+
+			setTimeout(function(){
+				$('#optionbox-reset').removeClass('reset').prop('checked', false).prop('disabled', true);
+				$('#optionspan-reset').text('History Cleared');
+			}, 400);
 		}
 
 		function favoriteHandler(name) {
