@@ -48,13 +48,16 @@
 			usedSettings : false,
 			usedFilter : false,
 			cantSaveOptions : false,
-			messageTimer : true
+			messageTimer : true,
+			customMode : false
 		};
 
 		var historyTrack = {
 			array: [],
 			position: 0 
 		};
+
+		var customImages = [];
 
 
 		// Spooky Recommendations
@@ -67,6 +70,10 @@
 
 
 		function extendPage(invokeCallback) {
+			if (target.customMode) {
+				return;
+			};
+
 			target.page++;
 
 			if (target.sortFilter == 0 || target.sortFilter == 2) {
@@ -137,6 +144,63 @@
 		}
 
 		function fetchJson(subredditOverwrite) {
+
+			// Custom Mode
+			if (system.customMode) {
+				var customInput = $('#subreddit-input').val();
+
+				// Leave the mode
+				if (customInput == '/custom') {
+					system.customMode = false;
+					$('#subreddit-input').val('').focus().select();
+					outputMessage("Left Custom Mode.");
+					return;
+				};
+
+				// Access a save
+				if (customInput == '/save') {
+					var customSave = '--' + btoa(customImages); 
+					$('#subreddit-input').val(customSave).focus().select();
+					outputMessage("Copy the save and enter it later to reload this setup.");
+					return;
+				};
+
+				// Load a save
+				if (customInput.substr(0,2) == '--') {
+					var customLoad = atob(customInput.substr(2)).split(',');
+					console.log(customLoad);
+
+					customImages = customLoad;
+					target.counter = -1;
+					target.specialMode = false;
+					$('#results').html('');
+
+					for (var i = customLoad.length - 1; i >= 0; i--) {
+						appendImage('', customLoad[i]);
+					};
+
+					$('#subreddit-input').val('');
+					
+					target.slideshowPosition = 0;
+					target.slideshowLength = $('.image').length;
+					$('.image').bind('click', function(){ setupSlideShow(this); });
+
+					outputMessage('Setup loaded.');
+					return;
+				};
+
+				appendImage('', customInput);
+
+				customImages[customImages.length] = customInput;
+
+				target.slideshowPosition = 0;
+				target.slideshowLength = $('.image').length;
+				$('.image').bind('click', function(){ setupSlideShow(this); });
+
+				$('#subreddit-input').val('').focus().select();
+
+				return;
+			};
 
 			try {
 			    window.stop();
@@ -213,6 +277,22 @@
 				
 				document.title = "Reddit Crawler";
 				return;
+			}
+
+			if (target.subreddit == "/custom") {
+				if (!system.customMode) {
+					$('#results').html(' ');
+
+					system.customMode = true;
+					customImages.length = 0;
+					target.counter = -1;
+					target.specialMode = false;
+
+					$('#subreddit-input').val('').focus().select();
+					outputMessage("Custom Mode. Enter Image URLs to build the page.");
+					document.title = "Custom Mode - Reddit Crawler";
+					return;
+				};
 			}
 
 			// Enter a random sub
