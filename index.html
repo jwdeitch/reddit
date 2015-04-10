@@ -29,7 +29,9 @@
 			albumPosition : 0,
 			counter : 0,
 			specialMode : true,
-			nofocusActive : true
+			nofocusActive : true,
+			tumblrMode: false,
+			tumblr: ''
 		};
 
 		var settings = {
@@ -75,6 +77,47 @@
 			};
 
 			target.page++;
+
+			if (target.tumblrMode) {
+				target.tempUrl = target.url + '&offset=' + (20 * target.page);
+				$('.focus-nextpage').removeClass('focus-nextpage').addClass('focus-nextload');
+
+				target.JSON = $.ajax({
+					method : "get",
+					url : target.tempUrl,
+					dataType : "json",
+
+					success : function(){
+
+						$('.panel, .panel-suggestion').remove();
+						$('.focus-nextload').removeClass('focus-nextload');
+
+						for (var i = 0; i <= (target.JSON.responseJSON.response.posts.length - 1); i++) {
+							var newImage = target.JSON.responseJSON.response.posts[i].photos[0].original_size.url;
+							var newTitle = target.JSON.responseJSON.response.posts[i].slug;
+
+							newTitle = newTitle.split('-').join(' ');
+
+							appendImage(newTitle, newImage);
+						};
+
+						target.slideshowLength = $('.image').length;
+						if (invokeCallback) { switchSlideShow(); };
+
+						// extendPage Card
+						$('<div/>', { class: 'panel-suggestion' , onclick : "extendPage()" }).html('Continue<br>Page ' + (target.page + 2) + '<br>' + target.tumblr.replace('.tumblr.com', '') + '<span style="color: ' + getRandomColor() + ';" class="prefixspan">.tumblr</span>').appendTo('#results');
+
+						$('.image').bind('click', function(){ setupSlideShow(this); });
+					},
+
+					error : function (x, status, error) {
+						outputMessage("There was an error loading the page");
+						$('.focus-nextload').removeClass('focus-nextload').addClass('focus-nextpage');
+					}
+
+				});
+				return;
+			};
 
 			if (target.sortFilter == 0 || target.sortFilter == 2) {
 				target.pageModifier = "?count=" + target.page * 25;
@@ -287,6 +330,7 @@
 					customImages.length = 0;
 					target.counter = -1;
 					target.specialMode = false;
+					target.tumblrMode = false;
 
 					$('#subreddit-input').val('').focus().select();
 					outputMessage("Custom Mode. Enter Image URLs to build the page.");
@@ -308,7 +352,7 @@
 
 			//Check if "Help 1" is used, if so, cancel everything and display the Advanced Help module
 			if (target.subreddit.toLowerCase() == "help" && target.sortFilter == 1) {
-				$('#results').html(' ').append('<div class="panel panel-help"><h1>Advanced</h1><br><!--<h2>Options</h2><b>Show NSFW content</b><br>If turned off, every subreddit containing NSFW images will be blocked from your view and history.<br><br><b>Suggest Subreddits</b><br>Search Reddit for subreddits that are similar to the current one.<br><br><b>Render HTML5 Video</b><br>If turned off, Gfys and Imgur gifvs won\'t be rendered. This can drastically improve performance on weak hardware.<br><br><b>Allow all Sources</b><br>If turned off, only imgur and gfycat links will be rendered.<br><br><b>Smooth Labels</b><br>Activate for smoothly fading hover labels. This might be taxing for weak hardware.<br><br><br>--><h2>Technical Details</h2>Reddit Crawler works by pulling data from Reddits API via AJAX calls from your client, there is no server-side code. Therefore, it is only limited by your hardware and connection speed.<br><br>The high amount of parallel image and video downloads is rather data heavy. Reddit Crawler tries to cancel all current HTTP requests whenever a new subreddit is being loaded, but not all browsers support this. If your browser slows down to a halt when you spam requests, consider switching from Internet Explorer.<br><br>There is no inherent page or image cap, but all browsers limit memory usage somewhere. This can lead to unloading of images and lag once you go beyond a certain page count. However, if you never leave Slideshow view, most browsers should be able to handle virtually unlimited pages.<br><br><h2>View Reddit Crawler on <a href="https://github.com/cetigo/reddit" target="_blank">Github</a></h2></div>');
+				$('#results').html(' ').append('<div class="panel panel-help"><h1>Advanced</h1><br><!--<h2>Options</h2><b>Show NSFW content</b><br>If turned off, every subreddit containing NSFW images will be blocked from your view and history.<br><br><b>Suggest Subreddits</b><br>Search Reddit for subreddits that are similar to the current one.<br><br><b>Render HTML5 Video</b><br>If turned off, Gfys and Imgur gifvs won\'t be rendered. This can drastically improve performance on weak hardware.<br><br><b>Allow all Sources</b><br>If turned off, only imgur and gfycat links will be rendered.<br><br><b>Smooth Labels</b><br>Activate for smoothly fading hover labels. This might be taxing for weak hardware.<br><br><br>--><h2>Additional Features</h2>You can enter Tumblr URLs to get all photo posts rendered in Reddit Crawler. Reddit Crawler can also load additional pages and tries to construct titles for the posts. This is an experimental feature, and Tumblr blogs do not get saved in your favorites.<br><br>You can type <pre>/custom</pre> to enter a Custom Mode. In the Custom Mode, enter raw image URLs to "build" a page, while being able to go through the images as usual. While in Custom Mode, type <pre>/save</pre> to export a string that can be reentered in custom mode to load a page setup. Type <pre>/custom</pre> once again to leave Custom Mode.<br><br><br><h2>Technical Details</h2>Reddit Crawler works by pulling data from Reddits API via AJAX calls from your client, there is no server-side code. Therefore, it is only limited by your hardware and connection speed.<br><br>The high amount of parallel image and video downloads is rather data heavy. Reddit Crawler tries to cancel all current HTTP requests whenever a new subreddit is being loaded, but not all browsers support this. If your browser slows down to a halt when you spam requests, consider switching from Internet Explorer.<br><br>There is no inherent page or image cap, but all browsers limit memory usage somewhere. This can lead to unloading of images and lag once you go beyond a certain page count. However, if you never leave Slideshow view, most browsers should be able to handle virtually unlimited pages.<br><br><h2>View Reddit Crawler on <a href="https://github.com/cetigo/reddit" target="_blank">Github</a></h2></div>');
 				document.title = "Help - Reddit Crawler";
 				return;
 			}
@@ -348,6 +392,12 @@
 				$('#optionbox-9').change(function() { settings.nightMode = $(this).prop('checked'); evaluateSettings(); });
 
 				system.usedSettings = true;
+				return;
+			};
+
+			// Check if it's a Tumblr Blog, if so, render that
+			if (~target.subreddit.indexOf('.tumblr')) {
+				tumblrRender(target.subreddit);
 				return;
 			};
 
@@ -402,6 +452,7 @@
 					$('#loader').remove();
 
 					target.lastUrl = target.JSON.responseJSON.data.after;
+					target.tumblrMode = false;
 
 					jsonRender(target.JSON.responseJSON.data.children, true);
 
@@ -461,6 +512,56 @@
 							}
 						);
 					};
+				},
+
+				error : function (x, status, error) {
+					$('#results').html(' ').append('<div id="loader">There was an error.<br><br><pre>' + error + '</pre></div>');
+					$('#subreddit-input').val('').focus();
+				}
+
+			});
+		}
+
+		function tumblrRender(tumblrblog) {
+
+			target.tumblr = tumblrblog.replace('http://', '').replace('.tumblr.com', '').replace('.tumblr.', '').replace('.tumblr', '');
+
+			target.url = 'http://api.tumblr.com/v2/blog/' + target.tumblr + '.tumblr.com/posts/photo?api_key=Y0lYJX4ung4TrdRzSDBGNzfUZInCBwigE4IXSq0VakTGddp9vs';
+
+			target.rawinput = target.tumblr + '.tumblr';
+			$('#subreddit-input').val(target.rawinput);
+
+			// Display "Loading" Dialogue
+			$('#results').html(' ').append('<div id="loader">Loading ' + target.tumblr + '<span style="color: ' + getRandomColor() + '" class="prefixspan">.tumblr</span></div>');
+
+			target.JSON = $.ajax({
+				method : "get",
+				url : target.url,
+				dataType : "json",
+
+				success : function(){
+
+					target.counter = -1;
+					target.specialMode = false;
+					target.tumblrMode = true;
+					target.page = 0;
+					$('#results').html('');
+
+					for (var i = 0; i <= (target.JSON.responseJSON.response.posts.length - 1); i++) {
+						var newImage = target.JSON.responseJSON.response.posts[i].photos[0].original_size.url;
+						var newTitle = target.JSON.responseJSON.response.posts[i].slug;
+
+						newTitle = newTitle.split('-').join(' ');
+
+						appendImage(newTitle, newImage);
+					};
+
+					target.slideshowPosition = 0;
+					target.slideshowLength = $('.image').length;
+
+					$('.image').bind('click', function(){ setupSlideShow(this); });
+
+					$('<div/>', { class: 'panel-suggestion' , onclick : "extendPage()" }).html('Continue<br>Page ' + (target.page + 2) + '<br>' + target.tumblr + '<span style="color: ' + getRandomColor() + ';" class="prefixspan">.tumblr</span>').appendTo('#results');
 				},
 
 				error : function (x, status, error) {
