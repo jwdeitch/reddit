@@ -632,6 +632,10 @@
 					appendImage(postTitle, "", "<video class='gfycat' data-gfyid='" + gfycatUrl + "' loop='' " + autoplayString + "muted='' preload='' poster='http://thumbs.gfycat.com/" + gfycatUrl + "-poster.jpg'></video>");
 				}
 
+				else if (~dataChildren[i].data.domain.indexOf("deviantart")) {
+					appendImage(postTitle, false, false, false, dataChildren[i].data.url);
+				}
+
 				//Other JPG / PNG / GIF
 				else if (settings.allowOtherSources == true) {
 
@@ -647,6 +651,7 @@
 
 			setupGfy();
 			setupAlbum();
+			setupDeviant();
 
 			if (doResetSP) {
 				target.slideshowPosition = $('.image').eq(0).attr('data-id');
@@ -675,17 +680,43 @@
 			});
 		}
 
-		function appendImage(imageTitle, imageUrl, videoContent, albumID) {
+		function setupDeviant() {
+			$('.image-deviantart').each(function(){
+				var instDeviantElement = $(this);
+				var instDeviantId = instDeviantElement.data("deviantart");
+
+				var instDeviantJson = $.ajax({
+					method: "get",
+					url: "http://backend.deviantart.com/oembed?url=" + instDeviantId,
+					dataType: "json",
+
+					success: function() {
+						instDeviantElement.removeClass('image-deviantart').css({"background-image": "url(" + instDeviantJson.url + ")"});
+					},
+
+					error: function() {
+						console.log("deviantart: request failed for " + instDeviantId);
+					}
+				})
+			});
+		}
+
+		function appendImage(imageTitle, imageUrl, html5Content, albumID, deviantart) {
+			var imageClass = "";
+			var videoContent = "";
+			target.counter++;
+
 			if (videoContent && videoContent != "") {
-				var imageClass = "image-html5";
-				videoContent = "<span class='helper'></span>" + videoContent;
-			} else {
-				var imageClass = "";
-				var videoContent = "";
+				imageClass = "image-html5";
+				videoContent = "<span class='helper'></span>" + html5Content;
 			}
 
-			target.counter++;
-			var createdImage = $('<div/>', { class : 'image ' + imageClass, style : 'background-image : url(' + imageUrl + ')' }).html(videoContent + "<span class='title'>" + imageTitle  + "</span>").appendTo('#results');
+			if (deviantart) {
+				var createdImage = $('<div/>', { class : 'image image-deviantart' }).html("<span class='title'>" + imageTitle  + "</span>").attr('data-deviantart', deviantart).appendTo('#results');
+			} else {
+				var createdImage = $('<div/>', { class : 'image ' + imageClass, style : 'background-image : url(' + imageUrl + ')' }).html(videoContent + "<span class='title'>" + imageTitle  + "</span>").appendTo('#results');
+			}
+			
 			if (target.counter == 0) {
 				$('#results .image').eq(0).addClass('nofocus');
 			};
