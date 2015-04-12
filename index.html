@@ -690,7 +690,7 @@
 					url: instDeviantApi,
             		dataType: 'jsonp',
 					success: function (data) {
-						instDeviantElement.css({"background-image": "url(" + data.url + ")"});
+						instDeviantElement.css({"background-image": "url(" + data.url + ")"}).removeClass('image-deviantart');
                 	}
             	});
 			});
