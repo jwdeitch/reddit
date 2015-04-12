@@ -684,20 +684,15 @@
 			$('.image-deviantart').each(function(){
 				var instDeviantElement = $(this);
 				var instDeviantId = instDeviantElement.data("deviantart");
+				var instDeviantApi = "http://backend.deviantart.com/oembed?format=jsonp&url=" + instDeviantId + "&callback=?";
 
-				var instDeviantJson = $.ajax({
-					method: "get",
-					url: "http://backend.deviantart.com/oembed?url=" + instDeviantId,
-					dataType: "json",
-
-					success: function() {
-						instDeviantElement.removeClass('image-deviantart').css({"background-image": "url(" + instDeviantJson.url + ")"});
-					},
-
-					error: function() {
-						console.log("deviantart: request failed for " + instDeviantId);
-					}
-				})
+				$.ajax({
+					url: instDeviantApi,
+            		dataType: 'jsonp',
+					success: function (data) {
+						instDeviantElement.css({"background-image": "url(" + data.url + ")"});
+                	}
+            	});
 			});
 		}
 
